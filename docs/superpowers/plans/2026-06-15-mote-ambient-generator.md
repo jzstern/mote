@@ -1294,7 +1294,7 @@ export default function App() {
 }
 ```
 
-> `useMoteApp` already created its own `MoteApp` from `canvasRef`. Ensure `Canvas`'s `onReady` assigns into the same `canvasRef` BEFORE the hook's effect runs — simplest is to have `useMoteApp` accept the ref and have `Canvas` use that same ref object. Refactor `Canvas` to take `canvasRef` directly instead of `onReady` if wiring is awkward; the goal is one shared ref.
+> Both `useMoteApp(canvasRef)` and `<Canvas canvasRef={canvasRef} />` share the single `canvasRef` declared here, so the engine binds to the live canvas with no `onReady` indirection (see Task 8 Step 5).
 
 - [ ] **Step 8: Verify in the browser** — `pnpm dev`, then use the preview workflow:
   - Confirm motes drift and glow on a dark field; "click anywhere" hint shows.
