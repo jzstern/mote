@@ -84,7 +84,9 @@ makes Mote always sound good.
   - *Mist* — a Japanese-flavored scale (e.g. in-sen / hirajoshi)
 - **Spatial → musical mapping** (intuitive, discoverable without explanation):
   - **Vertical position** → pitch within the scale (higher on screen = higher
-    pitch), spanning a few octaves like a soft staff.
+    pitch), spanning a few octaves like a soft staff. A mote's pad pitch is
+    latched at birth from this mapping (see §5) — a drifting mote does not
+    glissando.
   - **Size / speed** → register and brightness (large, slow motes read low and
     warm; small, fast motes read high and sparkly).
   - **Brightness / velocity** → note loudness and filter openness.
@@ -114,10 +116,13 @@ tests while feeling free in the app.
   reverb/delay sends → gentle music-box sparkle.
 - **Mode** — Pads / Plucks / Both:
   - *Pads* — each living mote holds a sustained note for its lifetime (note-on
-    at birth, note-off at death). The current population *is* a slowly evolving
-    chord.
-  - *Plucks* — motes are silent while alive; musical **events** (primarily
-    bounces, plus births) trigger short plucks.
+    at birth, note-off at death). Its pitch is fixed at birth from the spawn-time
+    position/size/speed and does not change as the mote drifts. The current
+    population *is* a slowly evolving chord.
+  - *Plucks* — motes are silent while drifting; musical **events** (primarily
+    bounces, plus births) trigger short plucks. On a fresh load and when idle,
+    the initial motes' births and the ongoing spore births keep plucks sounding,
+    so the field is never dead silent.
   - *Both* — motes hold pads and bounces add plucks.
 - **Master chain** — warm low-pass, soft limiter, gentle stereo width. The
   output can never become loud or shrill.
@@ -137,7 +142,8 @@ The canvas is clean by default. A corner control reveals a sliding strip:
   - **tone** → master filter brightness
   - **drift** → global motion speed / liveliness
 - **clear** (motes fade out gently), **play/pause** (spore spawner), **volume**
-- Settings persist in `localStorage`. No accounts, no backend.
+- Settings (mode, mood, knob values, and volume) persist in `localStorage`. No
+  accounts, no backend.
 
 ## 7. Visual design and delight
 
