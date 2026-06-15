@@ -394,7 +394,7 @@ The heart of the toy: motion, wall + particle collisions, aging/death, spores, e
 - Create: `src/engine/Simulation.ts`
 - Test: `src/engine/Simulation.test.ts`
 
-- [ ] **Step 1: Write the failing tests — `src/engine/Simulation.test.ts`**
+- [x] **Step 1: Write the failing tests — `src/engine/Simulation.test.ts`**
 
 ```ts
 import { describe, it, expect } from 'vitest';
@@ -456,9 +456,9 @@ describe('Simulation', () => {
 });
 ```
 
-- [ ] **Step 2: Run it — expect FAIL.**
+- [x] **Step 2: Run it — expect FAIL.**
 
-- [ ] **Step 3: Implement `src/engine/Simulation.ts`**
+- [x] **Step 3: Implement `src/engine/Simulation.ts`**
 
 ```ts
 import type { MusicalEvent } from './types';
@@ -592,8 +592,8 @@ export class Simulation {
 }
 ```
 
-- [ ] **Step 4: Run tests — expect PASS.** If the spore test is flaky on count, confirm `sporeIntervalSec` jitter keeps it within `maxParticles`; it should because `spawn` calls `removeOldest` at the cap.
-- [ ] **Step 5: Commit**
+- [x] **Step 4: Run tests — expect PASS.** If the spore test is flaky on count, confirm `sporeIntervalSec` jitter keeps it within `maxParticles`; it should because `spawn` calls `removeOldest` at the cap.
+- [x] **Step 5: Commit**
 
 ```bash
 git add -A && git commit -m "feat(engine): particle simulation with collisions, aging, spores"
