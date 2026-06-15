@@ -9,6 +9,7 @@ export default function App() {
   const { app, settings, setSettings, unlocked, unlock } = useMoteApp(canvasRef);
   const [hint, setHint] = useState(true);
   const drag = useRef<{ x: number; y: number; t: number } | null>(null);
+  const typed = useRef('');
 
   async function firstGesture() { if (!unlocked) await unlock(); setHint(false); }
 
@@ -24,13 +25,16 @@ export default function App() {
     if (e.repeat) return;
     void firstGesture();
     app.current?.addMote(Math.random() * window.innerWidth, Math.random() * window.innerHeight, 0, 0);
+    typed.current = (typed.current + e.key).slice(-4);
+    if (typed.current === 'mote') app.current?.bloomAll();
   }
 
   const patch = (p: Partial<Settings>) => setSettings((s) => ({ ...s, ...p }));
 
   return (
     <div className="relative h-full w-full" tabIndex={0} onKeyDown={onKeyDown}
-      onPointerDown={onPointerDown} onPointerUp={onPointerUp}>
+      onPointerDown={onPointerDown} onPointerUp={onPointerUp}
+      onDoubleClick={(e) => app.current?.bloomAt(e.clientX, e.clientY)}>
       <Canvas canvasRef={canvasRef} />
       {hint && (
         <div className="pointer-events-none absolute inset-0 flex items-center justify-center">

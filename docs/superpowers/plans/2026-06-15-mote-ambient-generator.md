@@ -1336,11 +1336,11 @@ Add subtle extras. Each is independently committable; keep them skippable and re
 **Files:**
 - Modify: `src/App.tsx`, `src/engine/MoteApp.ts`, `src/engine/Renderer.ts`
 
-- [ ] **Step 1: Double-click blooms the nearest mote** — in `App.tsx`, add `onDoubleClick={(e) => app.current?.bloomAt(e.clientX, e.clientY)}`. (`bloomAt` already exists on `MoteApp`.) Verify a chord flourish + (Step 4) a visual ring.
-- [ ] **Step 2: Type "mote" → bloom all + key shimmer** — track recent keystrokes in `App.tsx`; on matching `"mote"`, call a new `MoteApp.bloomAll()` that emits `bloom` for every particle and briefly raises reverb. Verify.
-- [ ] **Step 3: Time-of-day tint** — in `MoteApp.loop`, compute a tint from `new Date().getHours()` (warmer 18:00–06:00, cooler midday) and pass to `renderer.draw`; in `Renderer`, blend the trail-fade color slightly toward warm/cool by tint. Keep it subtle.
-- [ ] **Step 4: Bloom ring visual** — `Renderer` keeps a short list of active rings (center, radius, age); `draw` expands and fades them with additive blend. `MoteApp` pushes a ring on `bloom`. Honor `reducedMotion` (skip rings).
-- [ ] **Step 5: Commit** (one commit per egg is fine)
+- [x] **Step 1: Double-click blooms the nearest mote** — in `App.tsx`, add `onDoubleClick={(e) => app.current?.bloomAt(e.clientX, e.clientY)}`. (`bloomAt` already exists on `MoteApp`.) Verify a chord flourish + (Step 4) a visual ring.
+- [x] **Step 2: Type "mote" → bloom all + key shimmer** — track recent keystrokes in `App.tsx`; on matching `"mote"`, call a new `MoteApp.bloomAll()` that emits `bloom` for every particle and briefly raises reverb. Verify.
+- [x] **Step 3: Time-of-day tint** — in `MoteApp.loop`, compute a tint from `new Date().getHours()` (warmer 18:00–06:00, cooler midday) and pass to `renderer.draw`; in `Renderer`, blend the trail-fade color slightly toward warm/cool by tint. Keep it subtle.
+- [x] **Step 4: Bloom ring visual** — `Renderer` keeps a short list of active rings (center, radius, age); `draw` expands and fades them with additive blend. `MoteApp` pushes a ring on `bloom`. Honor `reducedMotion` (skip rings).
+- [x] **Step 5: Commit** (one commit per egg is fine)
 
 ```bash
 git add -A && git commit -m "feat: easter eggs (bloom, type-to-bloom, day tint, rings)"

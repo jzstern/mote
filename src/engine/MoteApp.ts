@@ -63,6 +63,11 @@ export class MoteApp {
 
   private onVisibility = () => { if (document.hidden) this.stop(); else this.start(); };
 
+  private dayTint(): number {
+    const h = new Date().getHours() + new Date().getMinutes() / 60;
+    return Math.cos((h / 24) * Math.PI * 2) * 0.6;
+  }
+
   private loop = (t: number) => {
     if (!this.running) return;
     this.raf = requestAnimationFrame(this.loop);
@@ -74,7 +79,7 @@ export class MoteApp {
       this.audio.handle(this.sim.step(this.STEP));
       this.acc -= this.STEP;
     }
-    this.renderer.draw(this.sim.particles, this.width, this.height, 0);
+    this.renderer.draw(this.sim.particles, this.width, this.height, this.dayTint());
   };
 
   addMote(x: number, y: number, vx = 0, vy = 0) {
@@ -89,7 +94,17 @@ export class MoteApp {
       if (!best || d < best.d) best = { id: p.id, d };
     }
     const p = this.sim.particles.find(p => p.id === best?.id);
-    if (p) this.audio.handle([{ type: 'bloom', particleId: p.id, x: p.pos.x, y: p.pos.y, size: p.size, speed: 0, voice: p.voice }]);
+    if (p) {
+      this.audio.handle([{ type: 'bloom', particleId: p.id, x: p.pos.x, y: p.pos.y, size: p.size, speed: 0, voice: p.voice }]);
+      this.renderer.addRing(p.pos.x, p.pos.y);
+    }
+  }
+  bloomAll() {
+    for (const p of this.sim.particles) {
+      this.audio.handle([{ type: 'bloom', particleId: p.id, x: p.pos.x, y: p.pos.y, size: p.size, speed: 0, voice: p.voice }]);
+      this.renderer.addRing(p.pos.x, p.pos.y);
+    }
+    this.audio.shimmer();
   }
   setMode(m: Mode) { this.audio.setMode(m); }
   setMood(m: Mood) { this.audio.setMood(m); }

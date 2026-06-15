@@ -9,6 +9,7 @@ export class AudioEngine {
   private mode: Mode = 'both';
   private mood: Mood = 'warm';
   private height = 1;
+  private lastReverbWet = 0.5;
   private lastPluckAt = -1;
   private readonly pluckMinInterval = 0.06;
   private readonly PAD_VOICES = 10;
@@ -75,13 +76,19 @@ export class AudioEngine {
 
   setKnobs(k: Partial<KnobValues>) {
     if (!this.ready) return;
-    if (k.space != null) this.reverb.wet.rampTo(0.15 + k.space * 0.65, 0.3);
+    if (k.space != null) { this.lastReverbWet = 0.15 + k.space * 0.65; this.reverb.wet.rampTo(this.lastReverbWet, 0.3); }
     if (k.echo != null) { this.delay.wet.rampTo(k.echo * 0.5, 0.3); this.delay.feedback.rampTo(0.15 + k.echo * 0.45, 0.3); }
     if (k.tone != null) { const f = 400 + k.tone * 2600; this.lfo.min = Math.max(250, f * 0.6); this.lfo.max = f; }
     if (k.speed != null) this.transport.bpm.rampTo(40 + k.speed * 80, 0.3);
   }
 
   setVolume(v: number) { if (this.ready) this.master.gain.rampTo(v, 0.2); }
+
+  shimmer() {
+    if (!this.ready) return;
+    this.reverb.wet.rampTo(0.9, 0.3);
+    setTimeout(() => { if (this.ready) this.reverb.wet.rampTo(this.lastReverbWet, 1.5); }, 700);
+  }
 
   handle(events: MusicalEvent[]) {
     if (!this.ready) return;
