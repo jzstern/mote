@@ -315,7 +315,7 @@ git add -A && git commit -m "feat(engine): scale + pitch mapping (no wrong notes
 - Create: `src/engine/palette.ts`, `src/engine/Particle.ts`
 - Test: `src/engine/Particle.test.ts`
 
-- [ ] **Step 1: Write `src/engine/palette.ts`**
+- [x] **Step 1: Write `src/engine/palette.ts`**
 
 ```ts
 import type { VoiceType } from './types';
@@ -332,7 +332,7 @@ export const VOICE_RGB: Record<VoiceType, [number, number, number]> = {
 };
 ```
 
-- [ ] **Step 2: Write the failing test — `src/engine/Particle.test.ts`**
+- [x] **Step 2: Write the failing test — `src/engine/Particle.test.ts`**
 
 ```ts
 import { describe, it, expect } from 'vitest';
@@ -355,9 +355,9 @@ describe('Particle helpers', () => {
 });
 ```
 
-- [ ] **Step 3: Run it — expect FAIL.**
+- [x] **Step 3: Run it — expect FAIL.**
 
-- [ ] **Step 4: Implement `src/engine/Particle.ts`**
+- [x] **Step 4: Implement `src/engine/Particle.ts`**
 
 ```ts
 import type { Vec2, VoiceType } from './types';
@@ -377,8 +377,8 @@ export function speedOf(p: Particle): number { return Math.hypot(p.vel.x, p.vel.
 export function lifePhase(p: Particle): number { return Math.min(1, p.age / p.lifespan); }
 ```
 
-- [ ] **Step 5: Run tests — expect PASS.**
-- [ ] **Step 6: Commit**
+- [x] **Step 5: Run tests — expect PASS.**
+- [x] **Step 6: Commit**
 
 ```bash
 git add -A && git commit -m "feat(engine): particle model and voice palette"
