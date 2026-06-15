@@ -127,7 +127,7 @@ git add -A && git commit -m "chore: scaffold Vite + React + TS + Tailwind + Vite
 - Create: `src/engine/rng.ts`, `src/engine/types.ts`
 - Test: `src/engine/rng.test.ts`
 
-- [ ] **Step 1: Write `src/engine/types.ts`**
+- [x] **Step 1: Write `src/engine/types.ts`**
 
 ```ts
 export type Vec2 = { x: number; y: number };
@@ -147,7 +147,7 @@ export interface MusicalEvent {
 export interface KnobValues { space: number; echo: number; tone: number; drift: number; speed: number; }
 ```
 
-- [ ] **Step 2: Write the failing test — `src/engine/rng.test.ts`**
+- [x] **Step 2: Write the failing test — `src/engine/rng.test.ts`**
 
 ```ts
 import { describe, it, expect } from 'vitest';
@@ -173,9 +173,9 @@ describe('mulberry32', () => {
 });
 ```
 
-- [ ] **Step 3: Run it — expect FAIL** (`pnpm test` → cannot import `./rng`).
+- [x] **Step 3: Run it — expect FAIL** (`pnpm test` → cannot import `./rng`).
 
-- [ ] **Step 4: Implement `src/engine/rng.ts`**
+- [x] **Step 4: Implement `src/engine/rng.ts`**
 
 ```ts
 export type Rng = () => number;
@@ -201,8 +201,8 @@ export function pick<T>(rng: Rng, arr: readonly T[]): T {
 }
 ```
 
-- [ ] **Step 5: Run tests — expect PASS.**
-- [ ] **Step 6: Commit**
+- [x] **Step 5: Run tests — expect PASS.**
+- [x] **Step 6: Commit**
 
 ```bash
 git add -A && git commit -m "feat(engine): seeded RNG and shared types"
