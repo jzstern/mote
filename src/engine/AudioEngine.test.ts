@@ -1,7 +1,6 @@
 import { describe, it, expect, vi } from 'vitest';
 
 vi.mock('tone', () => {
-  const node = () => ({ connect: vi.fn(), toDestination: vi.fn(), start: vi.fn(() => node()), dispose: vi.fn() });
   const ramp = () => ({ rampTo: vi.fn(), value: 0 });
   class Synth { detune = ramp(); connect = vi.fn(); triggerAttack = vi.fn(); triggerRelease = vi.fn(); dispose = vi.fn(); }
   class PolySynth { connect = vi.fn(); triggerAttackRelease = vi.fn(); dispose = vi.fn(); }
