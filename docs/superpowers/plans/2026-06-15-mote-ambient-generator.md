@@ -218,7 +218,7 @@ This module is the "no wrong notes" guarantee. Pitches are MIDI note numbers.
 - Create: `src/engine/scale.ts`
 - Test: `src/engine/scale.test.ts`
 
-- [ ] **Step 1: Write the failing test — `src/engine/scale.test.ts`**
+- [x] **Step 1: Write the failing test — `src/engine/scale.test.ts`**
 
 ```ts
 import { describe, it, expect } from 'vitest';
@@ -262,9 +262,9 @@ describe('pitchFor', () => {
 });
 ```
 
-- [ ] **Step 2: Run it — expect FAIL.**
+- [x] **Step 2: Run it — expect FAIL.**
 
-- [ ] **Step 3: Implement `src/engine/scale.ts`**
+- [x] **Step 3: Implement `src/engine/scale.ts`**
 
 ```ts
 import type { Mood } from './types';
@@ -300,8 +300,8 @@ export function pitchFor(mood: Mood, input: PitchInput): number {
 
 > Note: the monotonic test holds size constant; the small size term only shifts the curve, it never inverts it.
 
-- [ ] **Step 4: Run tests — expect PASS.**
-- [ ] **Step 5: Commit**
+- [x] **Step 4: Run tests — expect PASS.**
+- [x] **Step 5: Commit**
 
 ```bash
 git add -A && git commit -m "feat(engine): scale + pitch mapping (no wrong notes)"
