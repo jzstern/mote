@@ -1355,10 +1355,10 @@ git add -A && git commit -m "feat: easter eggs (bloom, type-to-bloom, day tint, 
 **Files:**
 - Modify: `index.html` (title, theme-color, meta), `src/index.css`, others as needed
 
-- [ ] **Step 1: Metadata** — set `<title>mote</title>`, a `<meta name="theme-color" content="#0c0a12">`, and a short description in `index.html`.
-- [ ] **Step 2: Reduced-motion pass** — verify with the browser emulating `prefers-reduced-motion: reduce`: trails become opaque (no smear), rings/sunbeam suppressed, control transitions minimal. Fix any motion that ignores the flag.
-- [ ] **Step 3: Performance guard** — stress with rapid clicks/keys to the cap (~160 motes); confirm frame rate stays smooth and audio never clutters (pluck rate-limit + pad voice cap hold). If needed, lower `maxParticles` or trail cost.
-- [ ] **Step 4: Full typecheck + tests + build**
+- [x] **Step 1: Metadata** — set `<title>mote</title>`, a `<meta name="theme-color" content="#0c0a12">`, and a short description in `index.html`.
+- [x] **Step 2: Reduced-motion pass** — verify with the browser emulating `prefers-reduced-motion: reduce`: trails become opaque (no smear), rings/sunbeam suppressed, control transitions minimal. Fix any motion that ignores the flag.
+- [x] **Step 3: Performance guard** — stress with rapid clicks/keys to the cap (~160 motes); confirm frame rate stays smooth and audio never clutters (pluck rate-limit + pad voice cap hold). If needed, lower `maxParticles` or trail cost.
+- [x] **Step 4: Full typecheck + tests + build**
 
 Run:
 ```bash
@@ -1366,8 +1366,8 @@ pnpm exec tsc --noEmit && pnpm test && pnpm build
 ```
 Expected: no type errors; all Vitest suites pass; `dist/` builds clean.
 
-- [ ] **Step 5: Spec cross-check** — re-read the spec's goals (§2) and confirm each is met: simple, always-pleasant, no theory, soft/warm, infinite/self-playing, full kit (pads/plucks/moods/knobs), easter eggs. Note any gaps.
-- [ ] **Step 6: Commit**
+- [x] **Step 5: Spec cross-check** — re-read the spec's goals (§2) and confirm each is met: simple, always-pleasant, no theory, soft/warm, infinite/self-playing, full kit (pads/plucks/moods/knobs), easter eggs. Note any gaps.
+- [x] **Step 6: Commit**
 
 ```bash
 git add -A && git commit -m "chore: polish, a11y, perf guard, final verification"
