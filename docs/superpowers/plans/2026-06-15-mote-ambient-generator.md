@@ -144,7 +144,7 @@ export interface MusicalEvent {
   voice: VoiceType;
 }
 
-export interface KnobValues { space: number; echo: number; tone: number; drift: number; }
+export interface KnobValues { space: number; echo: number; tone: number; drift: number; speed: number; }
 ```
 
 - [ ] **Step 2: Write the failing test — `src/engine/rng.test.ts`**
@@ -603,7 +603,7 @@ git add -A && git commit -m "feat(engine): particle simulation with collisions, 
 
 ## Task 5: Audio engine (`AudioEngine.ts`)
 
-Tone.js graph. Pads = a pool of sustained voices (one per living mote, with stealing). Plucks = a polyphonic FM synth triggered by events, rate-limited. Shared reverb/delay/chorus/filter chain into a soft limiter.
+Tone.js graph. Pads = a pool of sustained voices (one per living mote, with stealing). Plucks = a polyphonic FM synth triggered by events, quantized to a global tempo (the **speed** control / BPM via `Tone.Transport`) and rate-limited. Shared reverb/delay/chorus/filter chain into a soft limiter.
 
 **Files:**
 - Create: `src/engine/AudioEngine.ts`
@@ -631,6 +631,7 @@ vi.mock('tone', () => {
   return {
     Synth, PolySynth, Reverb, FeedbackDelay, Chorus, Filter, LFO, Gain, Limiter, FMSynth: class {},
     now: () => 0,
+    getTransport: () => ({ bpm: { value: 0, rampTo: vi.fn() }, start: vi.fn(), stop: vi.fn(), nextSubdivision: () => 0 }),
     Frequency: () => ({ toFrequency: () => 440 }),
   };
 });
@@ -686,6 +687,7 @@ export class AudioEngine {
   private filter!: Tone.Filter;
   private lfo!: Tone.LFO;
   private pluck!: Tone.PolySynth;
+  private transport!: ReturnType<typeof Tone.getTransport>;
   private padVoices: PadVoice[] = [];
 
   async init() {
@@ -715,6 +717,10 @@ export class AudioEngine {
     this.limiter.connect(this.master);
     this.master.toDestination();
 
+    this.transport = Tone.getTransport();
+    this.transport.bpm.value = 70;
+    this.transport.start();
+
     for (let i = 0; i < this.PAD_VOICES; i++) {
       const synth = new Tone.Synth({
         oscillator: { type: 'sine' },
@@ -737,6 +743,7 @@ export class AudioEngine {
     if (k.space != null) this.reverb.wet.rampTo(0.15 + k.space * 0.65, 0.3);
     if (k.echo != null) { this.delay.wet.rampTo(k.echo * 0.5, 0.3); this.delay.feedback.rampTo(0.15 + k.echo * 0.45, 0.3); }
     if (k.tone != null) { const f = 400 + k.tone * 2600; this.lfo.min = Math.max(250, f * 0.6); this.lfo.max = f; }
+    if (k.speed != null) this.transport.bpm.rampTo(40 + k.speed * 80, 0.3);
   }
 
   setVolume(v: number) { if (this.ready) this.master.gain.rampTo(v, 0.2); }
@@ -777,7 +784,8 @@ export class AudioEngine {
   private tryPluck(e: MusicalEvent, now: number) {
     if (now - this.lastPluckAt < this.pluckMinInterval) return;
     this.lastPluckAt = now;
-    this.pluck.triggerAttackRelease(this.freq(this.midiFor(e)), '8n', now);
+    const time = this.transport.nextSubdivision('8n');
+    this.pluck.triggerAttackRelease(this.freq(this.midiFor(e)), '8n', time);
   }
   private bloom(e: MusicalEvent, now: number) {
     const base = this.midiFor(e);
@@ -785,6 +793,7 @@ export class AudioEngine {
   }
 
   dispose() {
+    this.transport?.stop();
     [this.padBus, this.master, this.limiter, this.reverb, this.delay, this.chorus, this.filter, this.lfo, this.pluck]
       .forEach(n => n?.dispose?.());
     this.padVoices.forEach(v => v.synth.dispose());
@@ -1049,7 +1058,7 @@ export interface Settings { mode: Mode; mood: Mood; knobs: KnobValues; volume: n
 const KEY = 'mote.settings.v1';
 export const DEFAULTS: Settings = {
   mode: 'both', mood: 'warm',
-  knobs: { space: 0.6, echo: 0.3, tone: 0.5, drift: 0.5 },
+  knobs: { space: 0.6, echo: 0.3, tone: 0.5, drift: 0.5, speed: 0.5 },
   volume: 0.9, spores: true,
 };
 
@@ -1218,7 +1227,7 @@ export function ControlStrip({ settings, onChange, onClear }: {
           ))}
         </div>
 
-        <div className="flex items-center gap-2 self-center">
+        <div className="flex items-center gap-3 self-center">
           <button onClick={() => onChange({ spores: !settings.spores })} aria-pressed={settings.spores}
             aria-label={settings.spores ? 'pause auto-spawn' : 'resume auto-spawn'}
             className="flex h-8 w-8 items-center justify-center rounded-full border border-white/15 text-[#b9b2cf] hover:text-[#f3eefe]">
@@ -1231,12 +1240,22 @@ export function ControlStrip({ settings, onChange, onClear }: {
             )}
           </button>
 
-          <input type="range" min={0} max={1} step={0.01} value={settings.volume} aria-label="volume"
-            onChange={(e) => onChange({ volume: Number(e.target.value) })}
-            className="h-1 w-16 accent-[#cdbcff]" />
+          <label className="flex flex-col items-center gap-1 text-[11px] tracking-wide text-[#7d7796]">
+            <input type="range" min={0} max={1} step={0.01} value={settings.knobs.speed} aria-label="speed (tempo)"
+              onChange={(e) => onChange({ knobs: { ...settings.knobs, speed: Number(e.target.value) } })}
+              className="h-1 w-16 accent-[#ffd68c]" />
+            speed
+          </label>
+
+          <label className="flex flex-col items-center gap-1 text-[11px] tracking-wide text-[#7d7796]">
+            <input type="range" min={0} max={1} step={0.01} value={settings.volume} aria-label="volume"
+              onChange={(e) => onChange({ volume: Number(e.target.value) })}
+              className="h-1 w-16 accent-[#cdbcff]" />
+            vol
+          </label>
 
           <button onClick={onClear} aria-label="clear"
-            className="rounded-full border border-white/15 px-3 py-1.5 text-xs text-[#b9b2cf] hover:text-[#f3eefe]">clear</button>
+            className="self-start rounded-full border border-white/15 px-3 py-1.5 text-xs text-[#b9b2cf] hover:text-[#f3eefe]">clear</button>
         </div>
       </div>
     </div>
@@ -1299,7 +1318,7 @@ export default function App() {
 - [ ] **Step 8: Verify in the browser** — `pnpm dev`, then use the preview workflow:
   - Confirm motes drift and glow on a dark field; "click anywhere" hint shows.
   - Click → a mote appears and (after first click unlocks audio) a soft pad note swells. Drag → mote is thrown. Press keys → motes spawn.
-  - Toggle mode pads/plucks/both; switch moods; turn knobs (space/echo/tone/drift audibly change reverb/delay/brightness/motion); clear fades motes.
+  - Toggle mode pads/plucks/both; switch moods; turn knobs (space/echo/tone/drift audibly change reverb/delay/brightness/motion); move the **speed** slider in plucks/both mode and hear the tempo change; adjust **volume**; toggle **play/pause** (auto-spawn stops/starts); **clear** fades motes.
   - Check the browser console for errors (especially Tone audio-context warnings — there should be none after the first gesture).
 
 - [ ] **Step 9: Commit**
@@ -1360,6 +1379,6 @@ git add -A && git commit -m "chore: polish, a11y, perf guard, final verification
 
 ## Notes for the implementer
 
-- **Tune by ear** (spec §12): `ROOT_MIDI`, `OCTAVE_SPAN`, spore rate, `maxParticles`, pad voice count (~8–12), reverb decay, and pluck rate-limit are all starting points — adjust until it feels soft, warm, and uncluttered.
+- **Tune by ear** (spec §12): `ROOT_MIDI`, `OCTAVE_SPAN`, spore rate, `maxParticles`, pad voice count (~8–12), reverb decay, the BPM range (`40 + speed * 80`) and pluck subdivision (`8n` vs `16n`), and the pluck rate-limit are all starting points — adjust until it feels soft, warm, and uncluttered.
 - **Determinism caveat:** `MoteApp` seeds initial motes via the injected RNG, but live wall-clock seeding makes each session differ — intended. Tests inject a fixed seed.
 - **Ripple mode (roadmap, do NOT build):** when added, it emits a new `ring-cross` `MusicalEvent` from `Simulation` and is handled in `AudioEngine` — no other module changes. This is the seam the architecture exists to protect.

@@ -126,9 +126,9 @@ tests while feeling free in the app.
   - *Both* — motes hold pads and bounces add plucks.
 - **Master chain** — warm low-pass, soft limiter, gentle stereo width. The
   output can never become loud or shrill.
-- **Timing** — pads are free / slow-swelling; plucks are lightly quantized to a
-  slow `Tone.Transport` grid (or rate-limited) so collisions shimmer rather than
-  clatter.
+- **Timing** — pads are free / slow-swelling. Plucks quantize to a global
+  `Tone.Transport` tempo — the **speed** control, in BPM — so collisions land on a
+  gentle grid and shimmer rather than clatter; a rate limit still prevents floods.
 
 ## 6. Controls — "full kit," child-simple
 
@@ -140,7 +140,10 @@ The canvas is clean by default. A corner control reveals a sliding strip:
   - **space** → reverb amount
   - **echo** → delay amount/feedback
   - **tone** → master filter brightness
-  - **drift** → global motion speed / liveliness
+  - **drift** → how fast the motes physically move (visual liveliness, and how
+    often they collide)
+- **speed** (slider) → the musical tempo in BPM (≈40–120, default ~70) that the
+  plucks lock to — distinct from **drift**
 - **clear** (motes fade out gently), **play/pause** (spore spawner), **volume**
 - Settings (mode, mood, knob values, and volume) persist in `localStorage`. No
   accounts, no backend.
@@ -301,6 +304,6 @@ Focus automated testing on the pure logic; treat audio/render as side-effecty.
 
 - Exact default key, octave range, and spore rate are tuning decisions to settle
   by ear during implementation.
-- Whether plucks sound best lightly quantized to a slow transport grid vs. purely
-  rate-limited free time — decide by ear.
+- The exact pluck subdivision (8th vs 16th) and the **speed** / BPM range (≈40–120)
+  are by-ear tuning; plucks quantize to the global tempo with a rate limit on top.
 - Pad voice-cap number (target ~8–12) to balance richness against mud.
