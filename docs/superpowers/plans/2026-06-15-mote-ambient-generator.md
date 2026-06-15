@@ -60,7 +60,7 @@ Design reference: [`../specs/2026-06-15-mote-ambient-generator-design.md`](../sp
 **Files:**
 - Create: `package.json`, `vite.config.ts`, `tsconfig.json`, `tsconfig.node.json`, `index.html`, `src/main.tsx`, `src/App.tsx`, `src/index.css`
 
-- [ ] **Step 1: Scaffold Vite React+TS app into the existing repo**
+- [x] **Step 1: Scaffold Vite React+TS app into the existing repo**
 
 Run (from repo root, which already contains `docs/` and `.git`):
 ```bash
@@ -71,7 +71,7 @@ pnpm add tone
 pnpm add -D vitest @tailwindcss/vite
 ```
 
-- [ ] **Step 2: Configure Tailwind v4 + Vitest in `vite.config.ts`**
+- [x] **Step 2: Configure Tailwind v4 + Vitest in `vite.config.ts`**
 
 ```ts
 import { defineConfig } from 'vite';
@@ -85,7 +85,7 @@ export default defineConfig({
 ```
 Add a `"test": "vitest run"` and `"test:watch": "vitest"` script to `package.json`.
 
-- [ ] **Step 3: Global CSS — `src/index.css`**
+- [x] **Step 3: Global CSS — `src/index.css`**
 
 ```css
 @import "tailwindcss";
@@ -104,16 +104,16 @@ summary { cursor: pointer; }
 }
 ```
 
-- [ ] **Step 4: Minimal `src/App.tsx` placeholder + `src/main.tsx`**
+- [x] **Step 4: Minimal `src/App.tsx` placeholder + `src/main.tsx`**
 
 `App.tsx` returns a full-screen `<div className="h-full w-full" />` for now. Keep `main.tsx` as the Vite default (renders `<App/>`).
 
-- [ ] **Step 5: Verify dev server and test runner boot**
+- [x] **Step 5: Verify dev server and test runner boot**
 
 Run: `pnpm dev` → expect Vite to serve on localhost with no errors (Ctrl-C to stop).
 Run: `pnpm test` → expect Vitest to run with "no test files found" (exit 0) — confirms config is valid.
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add -A && git commit -m "chore: scaffold Vite + React + TS + Tailwind + Vitest"
