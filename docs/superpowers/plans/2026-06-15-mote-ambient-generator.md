@@ -1373,7 +1373,7 @@ Expected: no type errors; all Vitest suites pass; `dist/` builds clean.
 git add -A && git commit -m "chore: polish, a11y, perf guard, final verification"
 ```
 
-- [ ] **Step 7: Finish the branch** — use @superpowers:finishing-a-development-branch to decide merge vs PR.
+- [x] **Step 7: Finish the branch** — use @superpowers:finishing-a-development-branch to decide merge vs PR.
 
 ---
 
