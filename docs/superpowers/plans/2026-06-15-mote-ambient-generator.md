@@ -911,7 +911,7 @@ Wires the three subsystems, owns the fixed-timestep rAF loop, handles tab visibi
 
 > Verification here is integration-level: covered by manual checks in Task 9 once UI exists. Keep this task's "test" a `tsc` typecheck (`pnpm exec tsc --noEmit`) so the API surface compiles against the engine.
 
-- [ ] **Step 1: Implement `src/engine/MoteApp.ts`**
+- [x] **Step 1: Implement `src/engine/MoteApp.ts`**
 
 ```ts
 import { Simulation, type SimConfig } from './Simulation';
@@ -1032,8 +1032,8 @@ export class MoteApp {
 }
 ```
 
-- [ ] **Step 2: Typecheck — `pnpm exec tsc --noEmit`** → expect no errors.
-- [ ] **Step 3: Commit**
+- [x] **Step 2: Typecheck — `pnpm exec tsc --noEmit`** → expect no errors.
+- [x] **Step 3: Commit**
 
 ```bash
 git add -A && git commit -m "feat(engine): MoteApp composition root and rAF loop"
