@@ -28,6 +28,9 @@ pnpm-debug.log*
 # Worktrees (per global worktree rules)
 .claude/worktrees/
 
+# Local Claude Code preview/dev-server config
+.claude/launch.json
+
 # Secrets are managed via Doppler — never commit env files
 .env
 .env.*

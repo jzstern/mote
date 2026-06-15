@@ -1049,7 +1049,7 @@ Thin React shell. The canvas hosts the engine and forwards input; the control st
 - Create: `src/ui/storage.ts`, `src/ui/useMoteApp.ts`, `src/ui/Canvas.tsx`, `src/ui/Knob.tsx`, `src/ui/Segmented.tsx`, `src/ui/ControlStrip.tsx`
 - Modify: `src/App.tsx`
 
-- [ ] **Step 1: `src/ui/storage.ts`**
+- [x] **Step 1: `src/ui/storage.ts`**
 
 ```ts
 import type { KnobValues, Mode, Mood } from '../engine/types';
@@ -1071,7 +1071,7 @@ export function saveSettings(s: Settings) {
 }
 ```
 
-- [ ] **Step 2: `src/ui/useMoteApp.ts`** — own a `MoteApp` bound to a canvas ref, apply settings, persist.
+- [x] **Step 2: `src/ui/useMoteApp.ts`** — own a `MoteApp` bound to a canvas ref, apply settings, persist.
 
 ```ts
 import { useEffect, useRef, useState } from 'react';
@@ -1114,7 +1114,7 @@ export function useMoteApp(canvasRef: React.RefObject<HTMLCanvasElement | null>)
 }
 ```
 
-- [ ] **Step 3: `src/ui/Knob.tsx`** — pointer-drag knob (drag up = increase). Visual matches the approved mockup (dark circle, indicator line, soft colored glow).
+- [x] **Step 3: `src/ui/Knob.tsx`** — pointer-drag knob (drag up = increase). Visual matches the approved mockup (dark circle, indicator line, soft colored glow).
 
 ```tsx
 import { useRef } from 'react';
@@ -1157,7 +1157,7 @@ export function Knob({ label, value, onChange, glow }: {
 }
 ```
 
-- [ ] **Step 4: `src/ui/Segmented.tsx`** — generic segmented control for mode and mood.
+- [x] **Step 4: `src/ui/Segmented.tsx`** — generic segmented control for mode and mood.
 
 ```tsx
 export function Segmented<T extends string>({ options, value, onChange }: {
@@ -1177,7 +1177,7 @@ export function Segmented<T extends string>({ options, value, onChange }: {
 }
 ```
 
-- [ ] **Step 5: `src/ui/Canvas.tsx`** — full-screen canvas host bound to the shared ref.
+- [x] **Step 5: `src/ui/Canvas.tsx`** — full-screen canvas host bound to the shared ref.
 
 ```tsx
 export function Canvas({ canvasRef }: { canvasRef: React.RefObject<HTMLCanvasElement | null> }) {
@@ -1187,7 +1187,7 @@ export function Canvas({ canvasRef }: { canvasRef: React.RefObject<HTMLCanvasEle
 
 > Use ONE shared `canvasRef`: `useMoteApp(canvasRef)` owns it and `Canvas` attaches it via `<canvas ref={canvasRef}>`. React assigns a ref during commit, before any effect runs, so `useMoteApp`'s effect always sees a populated `canvasRef.current` — no effect-ordering assumptions and no `onReady` callback. Keep `Canvas` a dumb host; pointer/keyboard input is handled in `App.tsx` (which has the engine + `unlock`).
 
-- [ ] **Step 6: `src/ui/ControlStrip.tsx`** — the bottom strip from the mockup.
+- [x] **Step 6: `src/ui/ControlStrip.tsx`** — the bottom strip from the mockup.
 
 ```tsx
 import { Segmented } from './Segmented';
@@ -1263,7 +1263,7 @@ export function ControlStrip({ settings, onChange, onClear }: {
 }
 ```
 
-- [ ] **Step 7: `src/App.tsx`** — compose canvas + strip, wire input + audio unlock.
+- [x] **Step 7: `src/App.tsx`** — compose canvas + strip, wire input + audio unlock.
 
 ```tsx
 import { useRef, useState } from 'react';
@@ -1315,13 +1315,13 @@ export default function App() {
 
 > Both `useMoteApp(canvasRef)` and `<Canvas canvasRef={canvasRef} />` share the single `canvasRef` declared here, so the engine binds to the live canvas with no `onReady` indirection (see Task 8 Step 5).
 
-- [ ] **Step 8: Verify in the browser** — `pnpm dev`, then use the preview workflow:
+- [x] **Step 8: Verify in the browser** — `pnpm dev`, then use the preview workflow:
   - Confirm motes drift and glow on a dark field; "click anywhere" hint shows.
   - Click → a mote appears and (after first click unlocks audio) a soft pad note swells. Drag → mote is thrown. Press keys → motes spawn.
   - Toggle mode pads/plucks/both; switch moods; turn knobs (space/echo/tone/drift audibly change reverb/delay/brightness/motion); move the **speed** slider in plucks/both mode and hear the tempo change; adjust **volume**; toggle **play/pause** (auto-spawn stops/starts); **clear** fades motes.
   - Check the browser console for errors (especially Tone audio-context warnings — there should be none after the first gesture).
 
-- [ ] **Step 9: Commit**
+- [x] **Step 9: Commit**
 
 ```bash
 git add -A && git commit -m "feat(ui): canvas host, control strip, knobs, input + audio unlock"
