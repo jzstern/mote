@@ -34,3 +34,4 @@ pnpm-debug.log*
 # Secrets are managed via Doppler — never commit env files
 .env
 .env.*
+.vercel
