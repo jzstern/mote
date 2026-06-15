@@ -609,7 +609,7 @@ Tone.js graph. Pads = a pool of sustained voices (one per living mote, with stea
 - Create: `src/engine/AudioEngine.ts`
 - Test: `src/engine/AudioEngine.test.ts`
 
-- [ ] **Step 1: Write a construction/smoke test — `src/engine/AudioEngine.test.ts`**
+- [x] **Step 1: Write a construction/smoke test — `src/engine/AudioEngine.test.ts`**
 
 Tone touches the Web Audio API, so mock it. The test verifies wiring logic, not sound.
 
@@ -658,9 +658,9 @@ describe('AudioEngine', () => {
 });
 ```
 
-- [ ] **Step 2: Run it — expect FAIL.**
+- [x] **Step 2: Run it — expect FAIL.**
 
-- [ ] **Step 3: Implement `src/engine/AudioEngine.ts`**
+- [x] **Step 3: Implement `src/engine/AudioEngine.ts`**
 
 ```ts
 import * as Tone from 'tone';
@@ -802,8 +802,8 @@ export class AudioEngine {
 }
 ```
 
-- [ ] **Step 4: Run tests — expect PASS.**
-- [ ] **Step 5: Commit**
+- [x] **Step 4: Run tests — expect PASS.**
+- [x] **Step 5: Commit**
 
 ```bash
 git add -A && git commit -m "feat(engine): Tone.js audio engine (pads, plucks, effects)"
