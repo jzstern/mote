@@ -1069,7 +1069,7 @@ import { useEffect, useRef, useState } from 'react';
 import { MoteApp } from '../engine/MoteApp';
 import { loadSettings, saveSettings, type Settings } from './storage';
 
-export function useMoteApp(canvasRef: React.RefObject<HTMLCanvasElement>) {
+export function useMoteApp(canvasRef: React.RefObject<HTMLCanvasElement | null>) {
   const appRef = useRef<MoteApp | null>(null);
   const [settings, setSettings] = useState<Settings>(() => loadSettings());
   const [unlocked, setUnlocked] = useState(false);
@@ -1168,19 +1168,15 @@ export function Segmented<T extends string>({ options, value, onChange }: {
 }
 ```
 
-- [ ] **Step 5: `src/ui/Canvas.tsx`** — full-screen canvas; forwards pointer/keyboard; first gesture unlocks audio; drag = throw.
+- [ ] **Step 5: `src/ui/Canvas.tsx`** — full-screen canvas host bound to the shared ref.
 
 ```tsx
-import { useEffect, useRef } from 'react';
-
-export function Canvas({ onReady }: { onReady: (canvas: HTMLCanvasElement) => void }) {
-  const ref = useRef<HTMLCanvasElement>(null);
-  useEffect(() => { if (ref.current) onReady(ref.current); }, [onReady]);
-  return <canvas ref={ref} className="block h-full w-full touch-none" />;
+export function Canvas({ canvasRef }: { canvasRef: React.RefObject<HTMLCanvasElement | null> }) {
+  return <canvas ref={canvasRef} className="block h-full w-full touch-none" />;
 }
 ```
 
-> Input handling lives in `App.tsx` (it has access to the engine + `unlock`), wiring pointer/keyboard onto the canvas element. Keep `Canvas` a dumb host.
+> Use ONE shared `canvasRef`: `useMoteApp(canvasRef)` owns it and `Canvas` attaches it via `<canvas ref={canvasRef}>`. React assigns a ref during commit, before any effect runs, so `useMoteApp`'s effect always sees a populated `canvasRef.current` — no effect-ordering assumptions and no `onReady` callback. Keep `Canvas` a dumb host; pointer/keyboard input is handled in `App.tsx` (which has the engine + `unlock`).
 
 - [ ] **Step 6: `src/ui/ControlStrip.tsx`** — the bottom strip from the mockup.
 
@@ -1208,17 +1204,40 @@ export function ControlStrip({ settings, onChange, onClear }: {
         <span className="h-1.5 w-1.5 rounded-full bg-[#ffb78a] shadow-[0_0_10px_#ffb78a]" />
         <span className="text-lg tracking-[0.3em] text-[#efe9fb]">mote</span>
       </div>
+
       <div className="flex items-center gap-3">
         <Segmented options={MODES} value={settings.mode} onChange={(mode) => onChange({ mode })} />
         <Segmented options={MOODS} value={settings.mood} onChange={(mood) => onChange({ mood })} />
       </div>
-      <div className="flex items-start gap-4">
-        {KNOBS.map(({ key, glow }) => (
-          <Knob key={key} label={key} glow={glow} value={settings.knobs[key]}
-            onChange={(v) => onChange({ knobs: { ...settings.knobs, [key]: v } })} />
-        ))}
-        <button onClick={onClear} aria-label="clear"
-          className="self-center rounded-full border border-white/15 px-3 py-1.5 text-xs text-[#b9b2cf] hover:text-[#f3eefe]">clear</button>
+
+      <div className="flex items-center gap-4">
+        <div className="flex items-start gap-4">
+          {KNOBS.map(({ key, glow }) => (
+            <Knob key={key} label={key} glow={glow} value={settings.knobs[key]}
+              onChange={(v) => onChange({ knobs: { ...settings.knobs, [key]: v } })} />
+          ))}
+        </div>
+
+        <div className="flex items-center gap-2 self-center">
+          <button onClick={() => onChange({ spores: !settings.spores })} aria-pressed={settings.spores}
+            aria-label={settings.spores ? 'pause auto-spawn' : 'resume auto-spawn'}
+            className="flex h-8 w-8 items-center justify-center rounded-full border border-white/15 text-[#b9b2cf] hover:text-[#f3eefe]">
+            {settings.spores ? (
+              <svg width="11" height="11" viewBox="0 0 10 10" aria-hidden="true">
+                <rect x="1" y="1" width="3" height="8" fill="currentColor" /><rect x="6" y="1" width="3" height="8" fill="currentColor" />
+              </svg>
+            ) : (
+              <svg width="11" height="11" viewBox="0 0 10 10" aria-hidden="true"><path d="M2 1l7 4-7 4z" fill="currentColor" /></svg>
+            )}
+          </button>
+
+          <input type="range" min={0} max={1} step={0.01} value={settings.volume} aria-label="volume"
+            onChange={(e) => onChange({ volume: Number(e.target.value) })}
+            className="h-1 w-16 accent-[#cdbcff]" />
+
+          <button onClick={onClear} aria-label="clear"
+            className="rounded-full border border-white/15 px-3 py-1.5 text-xs text-[#b9b2cf] hover:text-[#f3eefe]">clear</button>
+        </div>
       </div>
     </div>
   );
@@ -1228,7 +1247,7 @@ export function ControlStrip({ settings, onChange, onClear }: {
 - [ ] **Step 7: `src/App.tsx`** — compose canvas + strip, wire input + audio unlock.
 
 ```tsx
-import { useCallback, useRef, useState } from 'react';
+import { useRef, useState } from 'react';
 import { Canvas } from './ui/Canvas';
 import { ControlStrip } from './ui/ControlStrip';
 import { useMoteApp } from './ui/useMoteApp';
@@ -1239,8 +1258,6 @@ export default function App() {
   const { app, settings, setSettings, unlocked, unlock } = useMoteApp(canvasRef);
   const [hint, setHint] = useState(true);
   const drag = useRef<{ x: number; y: number; t: number } | null>(null);
-
-  const onReady = useCallback((c: HTMLCanvasElement) => { (canvasRef as React.MutableRefObject<HTMLCanvasElement>).current = c; }, []);
 
   async function firstGesture() { if (!unlocked) await unlock(); setHint(false); }
 
@@ -1263,7 +1280,7 @@ export default function App() {
   return (
     <div className="relative h-full w-full" tabIndex={0} onKeyDown={onKeyDown}
       onPointerDown={onPointerDown} onPointerUp={onPointerUp}>
-      <Canvas onReady={onReady} />
+      <Canvas canvasRef={canvasRef} />
       {hint && (
         <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
           <span className="text-sm tracking-widest text-white/30">click anywhere</span>
