@@ -27,6 +27,7 @@ export class AudioEngine {
   private padVoices: PadVoice[] = [];
 
   async init() {
+    if (this.ready) return;
     this.master = new Tone.Gain(0.9);
     this.limiter = new Tone.Limiter(-1);
     this.reverb = new Tone.Reverb({ decay: 9, preDelay: 0.03, wet: 0.5 });

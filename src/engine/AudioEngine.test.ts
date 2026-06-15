@@ -39,4 +39,8 @@ describe('AudioEngine', () => {
     a.setHeight(600); a.setMode('pads');
     expect(() => { a.handle([ev({ type: 'born', particleId: 7 })]); a.handle([ev({ type: 'death', particleId: 7 })]); }).not.toThrow();
   });
+  it('init is idempotent — a second unlock does not rebuild the graph (no doubled voices)', async () => {
+    const a = new AudioEngine(); await a.init(); await a.init();
+    expect((a as unknown as { padVoices: unknown[] }).padVoices.length).toBe(10);
+  });
 });

@@ -16,6 +16,7 @@ export default function App() {
   function onPointerDown(e: React.PointerEvent) { drag.current = { x: e.clientX, y: e.clientY, t: performance.now() }; void firstGesture(); }
   function onPointerUp(e: React.PointerEvent) {
     const d = drag.current; drag.current = null;
+    if (e.target !== canvasRef.current) return; // ignore control-strip interactions
     const dtm = d ? Math.max(16, performance.now() - d.t) : 16;
     const vx = d ? ((e.clientX - d.x) / dtm) * 1000 * 0.25 : 0;
     const vy = d ? ((e.clientY - d.y) / dtm) * 1000 * 0.25 : 0;
