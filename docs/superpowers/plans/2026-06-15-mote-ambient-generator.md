@@ -60,7 +60,7 @@ Design reference: [`../specs/2026-06-15-mote-ambient-generator-design.md`](../sp
 **Files:**
 - Create: `package.json`, `vite.config.ts`, `tsconfig.json`, `tsconfig.node.json`, `index.html`, `src/main.tsx`, `src/App.tsx`, `src/index.css`
 
-- [ ] **Step 1: Scaffold Vite React+TS app into the existing repo**
+- [x] **Step 1: Scaffold Vite React+TS app into the existing repo**
 
 Run (from repo root, which already contains `docs/` and `.git`):
 ```bash
@@ -71,7 +71,7 @@ pnpm add tone
 pnpm add -D vitest @tailwindcss/vite
 ```
 
-- [ ] **Step 2: Configure Tailwind v4 + Vitest in `vite.config.ts`**
+- [x] **Step 2: Configure Tailwind v4 + Vitest in `vite.config.ts`**
 
 ```ts
 import { defineConfig } from 'vite';
@@ -85,7 +85,7 @@ export default defineConfig({
 ```
 Add a `"test": "vitest run"` and `"test:watch": "vitest"` script to `package.json`.
 
-- [ ] **Step 3: Global CSS — `src/index.css`**
+- [x] **Step 3: Global CSS — `src/index.css`**
 
 ```css
 @import "tailwindcss";
@@ -104,16 +104,16 @@ summary { cursor: pointer; }
 }
 ```
 
-- [ ] **Step 4: Minimal `src/App.tsx` placeholder + `src/main.tsx`**
+- [x] **Step 4: Minimal `src/App.tsx` placeholder + `src/main.tsx`**
 
 `App.tsx` returns a full-screen `<div className="h-full w-full" />` for now. Keep `main.tsx` as the Vite default (renders `<App/>`).
 
-- [ ] **Step 5: Verify dev server and test runner boot**
+- [x] **Step 5: Verify dev server and test runner boot**
 
 Run: `pnpm dev` → expect Vite to serve on localhost with no errors (Ctrl-C to stop).
 Run: `pnpm test` → expect Vitest to run with "no test files found" (exit 0) — confirms config is valid.
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add -A && git commit -m "chore: scaffold Vite + React + TS + Tailwind + Vitest"
@@ -127,7 +127,7 @@ git add -A && git commit -m "chore: scaffold Vite + React + TS + Tailwind + Vite
 - Create: `src/engine/rng.ts`, `src/engine/types.ts`
 - Test: `src/engine/rng.test.ts`
 
-- [ ] **Step 1: Write `src/engine/types.ts`**
+- [x] **Step 1: Write `src/engine/types.ts`**
 
 ```ts
 export type Vec2 = { x: number; y: number };
@@ -147,7 +147,7 @@ export interface MusicalEvent {
 export interface KnobValues { space: number; echo: number; tone: number; drift: number; speed: number; }
 ```
 
-- [ ] **Step 2: Write the failing test — `src/engine/rng.test.ts`**
+- [x] **Step 2: Write the failing test — `src/engine/rng.test.ts`**
 
 ```ts
 import { describe, it, expect } from 'vitest';
@@ -173,9 +173,9 @@ describe('mulberry32', () => {
 });
 ```
 
-- [ ] **Step 3: Run it — expect FAIL** (`pnpm test` → cannot import `./rng`).
+- [x] **Step 3: Run it — expect FAIL** (`pnpm test` → cannot import `./rng`).
 
-- [ ] **Step 4: Implement `src/engine/rng.ts`**
+- [x] **Step 4: Implement `src/engine/rng.ts`**
 
 ```ts
 export type Rng = () => number;
@@ -201,8 +201,8 @@ export function pick<T>(rng: Rng, arr: readonly T[]): T {
 }
 ```
 
-- [ ] **Step 5: Run tests — expect PASS.**
-- [ ] **Step 6: Commit**
+- [x] **Step 5: Run tests — expect PASS.**
+- [x] **Step 6: Commit**
 
 ```bash
 git add -A && git commit -m "feat(engine): seeded RNG and shared types"
@@ -218,7 +218,7 @@ This module is the "no wrong notes" guarantee. Pitches are MIDI note numbers.
 - Create: `src/engine/scale.ts`
 - Test: `src/engine/scale.test.ts`
 
-- [ ] **Step 1: Write the failing test — `src/engine/scale.test.ts`**
+- [x] **Step 1: Write the failing test — `src/engine/scale.test.ts`**
 
 ```ts
 import { describe, it, expect } from 'vitest';
@@ -262,9 +262,9 @@ describe('pitchFor', () => {
 });
 ```
 
-- [ ] **Step 2: Run it — expect FAIL.**
+- [x] **Step 2: Run it — expect FAIL.**
 
-- [ ] **Step 3: Implement `src/engine/scale.ts`**
+- [x] **Step 3: Implement `src/engine/scale.ts`**
 
 ```ts
 import type { Mood } from './types';
@@ -300,8 +300,8 @@ export function pitchFor(mood: Mood, input: PitchInput): number {
 
 > Note: the monotonic test holds size constant; the small size term only shifts the curve, it never inverts it.
 
-- [ ] **Step 4: Run tests — expect PASS.**
-- [ ] **Step 5: Commit**
+- [x] **Step 4: Run tests — expect PASS.**
+- [x] **Step 5: Commit**
 
 ```bash
 git add -A && git commit -m "feat(engine): scale + pitch mapping (no wrong notes)"
@@ -315,7 +315,7 @@ git add -A && git commit -m "feat(engine): scale + pitch mapping (no wrong notes
 - Create: `src/engine/palette.ts`, `src/engine/Particle.ts`
 - Test: `src/engine/Particle.test.ts`
 
-- [ ] **Step 1: Write `src/engine/palette.ts`**
+- [x] **Step 1: Write `src/engine/palette.ts`**
 
 ```ts
 import type { VoiceType } from './types';
@@ -332,7 +332,7 @@ export const VOICE_RGB: Record<VoiceType, [number, number, number]> = {
 };
 ```
 
-- [ ] **Step 2: Write the failing test — `src/engine/Particle.test.ts`**
+- [x] **Step 2: Write the failing test — `src/engine/Particle.test.ts`**
 
 ```ts
 import { describe, it, expect } from 'vitest';
@@ -355,9 +355,9 @@ describe('Particle helpers', () => {
 });
 ```
 
-- [ ] **Step 3: Run it — expect FAIL.**
+- [x] **Step 3: Run it — expect FAIL.**
 
-- [ ] **Step 4: Implement `src/engine/Particle.ts`**
+- [x] **Step 4: Implement `src/engine/Particle.ts`**
 
 ```ts
 import type { Vec2, VoiceType } from './types';
@@ -377,8 +377,8 @@ export function speedOf(p: Particle): number { return Math.hypot(p.vel.x, p.vel.
 export function lifePhase(p: Particle): number { return Math.min(1, p.age / p.lifespan); }
 ```
 
-- [ ] **Step 5: Run tests — expect PASS.**
-- [ ] **Step 6: Commit**
+- [x] **Step 5: Run tests — expect PASS.**
+- [x] **Step 6: Commit**
 
 ```bash
 git add -A && git commit -m "feat(engine): particle model and voice palette"
@@ -394,7 +394,7 @@ The heart of the toy: motion, wall + particle collisions, aging/death, spores, e
 - Create: `src/engine/Simulation.ts`
 - Test: `src/engine/Simulation.test.ts`
 
-- [ ] **Step 1: Write the failing tests — `src/engine/Simulation.test.ts`**
+- [x] **Step 1: Write the failing tests — `src/engine/Simulation.test.ts`**
 
 ```ts
 import { describe, it, expect } from 'vitest';
@@ -456,9 +456,9 @@ describe('Simulation', () => {
 });
 ```
 
-- [ ] **Step 2: Run it — expect FAIL.**
+- [x] **Step 2: Run it — expect FAIL.**
 
-- [ ] **Step 3: Implement `src/engine/Simulation.ts`**
+- [x] **Step 3: Implement `src/engine/Simulation.ts`**
 
 ```ts
 import type { MusicalEvent } from './types';
@@ -592,8 +592,8 @@ export class Simulation {
 }
 ```
 
-- [ ] **Step 4: Run tests — expect PASS.** If the spore test is flaky on count, confirm `sporeIntervalSec` jitter keeps it within `maxParticles`; it should because `spawn` calls `removeOldest` at the cap.
-- [ ] **Step 5: Commit**
+- [x] **Step 4: Run tests — expect PASS.** If the spore test is flaky on count, confirm `sporeIntervalSec` jitter keeps it within `maxParticles`; it should because `spawn` calls `removeOldest` at the cap.
+- [x] **Step 5: Commit**
 
 ```bash
 git add -A && git commit -m "feat(engine): particle simulation with collisions, aging, spores"
@@ -609,7 +609,7 @@ Tone.js graph. Pads = a pool of sustained voices (one per living mote, with stea
 - Create: `src/engine/AudioEngine.ts`
 - Test: `src/engine/AudioEngine.test.ts`
 
-- [ ] **Step 1: Write a construction/smoke test — `src/engine/AudioEngine.test.ts`**
+- [x] **Step 1: Write a construction/smoke test — `src/engine/AudioEngine.test.ts`**
 
 Tone touches the Web Audio API, so mock it. The test verifies wiring logic, not sound.
 
@@ -658,9 +658,9 @@ describe('AudioEngine', () => {
 });
 ```
 
-- [ ] **Step 2: Run it — expect FAIL.**
+- [x] **Step 2: Run it — expect FAIL.**
 
-- [ ] **Step 3: Implement `src/engine/AudioEngine.ts`**
+- [x] **Step 3: Implement `src/engine/AudioEngine.ts`**
 
 ```ts
 import * as Tone from 'tone';
@@ -802,8 +802,8 @@ export class AudioEngine {
 }
 ```
 
-- [ ] **Step 4: Run tests — expect PASS.**
-- [ ] **Step 5: Commit**
+- [x] **Step 4: Run tests — expect PASS.**
+- [x] **Step 5: Commit**
 
 ```bash
 git add -A && git commit -m "feat(engine): Tone.js audio engine (pads, plucks, effects)"
@@ -817,7 +817,7 @@ git add -A && git commit -m "feat(engine): Tone.js audio engine (pads, plucks, e
 - Create: `src/engine/Renderer.ts`
 - Test: `src/engine/Renderer.test.ts`
 
-- [ ] **Step 1: Smoke test with a mock 2D context — `src/engine/Renderer.test.ts`**
+- [x] **Step 1: Smoke test with a mock 2D context — `src/engine/Renderer.test.ts`**
 
 ```ts
 import { describe, it, expect, vi } from 'vitest';
@@ -847,9 +847,9 @@ describe('Renderer', () => {
 });
 ```
 
-- [ ] **Step 2: Run it — expect FAIL.**
+- [x] **Step 2: Run it — expect FAIL.**
 
-- [ ] **Step 3: Implement `src/engine/Renderer.ts`**
+- [x] **Step 3: Implement `src/engine/Renderer.ts`**
 
 ```ts
 import { lifePhase, type Particle } from './Particle';
@@ -893,8 +893,8 @@ export class Renderer {
 }
 ```
 
-- [ ] **Step 4: Run tests — expect PASS.**
-- [ ] **Step 5: Commit**
+- [x] **Step 4: Run tests — expect PASS.**
+- [x] **Step 5: Commit**
 
 ```bash
 git add -A && git commit -m "feat(engine): canvas renderer with glow and trails"
@@ -911,7 +911,7 @@ Wires the three subsystems, owns the fixed-timestep rAF loop, handles tab visibi
 
 > Verification here is integration-level: covered by manual checks in Task 9 once UI exists. Keep this task's "test" a `tsc` typecheck (`pnpm exec tsc --noEmit`) so the API surface compiles against the engine.
 
-- [ ] **Step 1: Implement `src/engine/MoteApp.ts`**
+- [x] **Step 1: Implement `src/engine/MoteApp.ts`**
 
 ```ts
 import { Simulation, type SimConfig } from './Simulation';
@@ -1032,8 +1032,8 @@ export class MoteApp {
 }
 ```
 
-- [ ] **Step 2: Typecheck — `pnpm exec tsc --noEmit`** → expect no errors.
-- [ ] **Step 3: Commit**
+- [x] **Step 2: Typecheck — `pnpm exec tsc --noEmit`** → expect no errors.
+- [x] **Step 3: Commit**
 
 ```bash
 git add -A && git commit -m "feat(engine): MoteApp composition root and rAF loop"
@@ -1049,7 +1049,7 @@ Thin React shell. The canvas hosts the engine and forwards input; the control st
 - Create: `src/ui/storage.ts`, `src/ui/useMoteApp.ts`, `src/ui/Canvas.tsx`, `src/ui/Knob.tsx`, `src/ui/Segmented.tsx`, `src/ui/ControlStrip.tsx`
 - Modify: `src/App.tsx`
 
-- [ ] **Step 1: `src/ui/storage.ts`**
+- [x] **Step 1: `src/ui/storage.ts`**
 
 ```ts
 import type { KnobValues, Mode, Mood } from '../engine/types';
@@ -1071,7 +1071,7 @@ export function saveSettings(s: Settings) {
 }
 ```
 
-- [ ] **Step 2: `src/ui/useMoteApp.ts`** — own a `MoteApp` bound to a canvas ref, apply settings, persist.
+- [x] **Step 2: `src/ui/useMoteApp.ts`** — own a `MoteApp` bound to a canvas ref, apply settings, persist.
 
 ```ts
 import { useEffect, useRef, useState } from 'react';
@@ -1114,7 +1114,7 @@ export function useMoteApp(canvasRef: React.RefObject<HTMLCanvasElement | null>)
 }
 ```
 
-- [ ] **Step 3: `src/ui/Knob.tsx`** — pointer-drag knob (drag up = increase). Visual matches the approved mockup (dark circle, indicator line, soft colored glow).
+- [x] **Step 3: `src/ui/Knob.tsx`** — pointer-drag knob (drag up = increase). Visual matches the approved mockup (dark circle, indicator line, soft colored glow).
 
 ```tsx
 import { useRef } from 'react';
@@ -1157,7 +1157,7 @@ export function Knob({ label, value, onChange, glow }: {
 }
 ```
 
-- [ ] **Step 4: `src/ui/Segmented.tsx`** — generic segmented control for mode and mood.
+- [x] **Step 4: `src/ui/Segmented.tsx`** — generic segmented control for mode and mood.
 
 ```tsx
 export function Segmented<T extends string>({ options, value, onChange }: {
@@ -1177,7 +1177,7 @@ export function Segmented<T extends string>({ options, value, onChange }: {
 }
 ```
 
-- [ ] **Step 5: `src/ui/Canvas.tsx`** — full-screen canvas host bound to the shared ref.
+- [x] **Step 5: `src/ui/Canvas.tsx`** — full-screen canvas host bound to the shared ref.
 
 ```tsx
 export function Canvas({ canvasRef }: { canvasRef: React.RefObject<HTMLCanvasElement | null> }) {
@@ -1187,7 +1187,7 @@ export function Canvas({ canvasRef }: { canvasRef: React.RefObject<HTMLCanvasEle
 
 > Use ONE shared `canvasRef`: `useMoteApp(canvasRef)` owns it and `Canvas` attaches it via `<canvas ref={canvasRef}>`. React assigns a ref during commit, before any effect runs, so `useMoteApp`'s effect always sees a populated `canvasRef.current` — no effect-ordering assumptions and no `onReady` callback. Keep `Canvas` a dumb host; pointer/keyboard input is handled in `App.tsx` (which has the engine + `unlock`).
 
-- [ ] **Step 6: `src/ui/ControlStrip.tsx`** — the bottom strip from the mockup.
+- [x] **Step 6: `src/ui/ControlStrip.tsx`** — the bottom strip from the mockup.
 
 ```tsx
 import { Segmented } from './Segmented';
@@ -1263,7 +1263,7 @@ export function ControlStrip({ settings, onChange, onClear }: {
 }
 ```
 
-- [ ] **Step 7: `src/App.tsx`** — compose canvas + strip, wire input + audio unlock.
+- [x] **Step 7: `src/App.tsx`** — compose canvas + strip, wire input + audio unlock.
 
 ```tsx
 import { useRef, useState } from 'react';
@@ -1315,13 +1315,13 @@ export default function App() {
 
 > Both `useMoteApp(canvasRef)` and `<Canvas canvasRef={canvasRef} />` share the single `canvasRef` declared here, so the engine binds to the live canvas with no `onReady` indirection (see Task 8 Step 5).
 
-- [ ] **Step 8: Verify in the browser** — `pnpm dev`, then use the preview workflow:
+- [x] **Step 8: Verify in the browser** — `pnpm dev`, then use the preview workflow:
   - Confirm motes drift and glow on a dark field; "click anywhere" hint shows.
   - Click → a mote appears and (after first click unlocks audio) a soft pad note swells. Drag → mote is thrown. Press keys → motes spawn.
   - Toggle mode pads/plucks/both; switch moods; turn knobs (space/echo/tone/drift audibly change reverb/delay/brightness/motion); move the **speed** slider in plucks/both mode and hear the tempo change; adjust **volume**; toggle **play/pause** (auto-spawn stops/starts); **clear** fades motes.
   - Check the browser console for errors (especially Tone audio-context warnings — there should be none after the first gesture).
 
-- [ ] **Step 9: Commit**
+- [x] **Step 9: Commit**
 
 ```bash
 git add -A && git commit -m "feat(ui): canvas host, control strip, knobs, input + audio unlock"
@@ -1336,11 +1336,11 @@ Add subtle extras. Each is independently committable; keep them skippable and re
 **Files:**
 - Modify: `src/App.tsx`, `src/engine/MoteApp.ts`, `src/engine/Renderer.ts`
 
-- [ ] **Step 1: Double-click blooms the nearest mote** — in `App.tsx`, add `onDoubleClick={(e) => app.current?.bloomAt(e.clientX, e.clientY)}`. (`bloomAt` already exists on `MoteApp`.) Verify a chord flourish + (Step 4) a visual ring.
-- [ ] **Step 2: Type "mote" → bloom all + key shimmer** — track recent keystrokes in `App.tsx`; on matching `"mote"`, call a new `MoteApp.bloomAll()` that emits `bloom` for every particle and briefly raises reverb. Verify.
-- [ ] **Step 3: Time-of-day tint** — in `MoteApp.loop`, compute a tint from `new Date().getHours()` (warmer 18:00–06:00, cooler midday) and pass to `renderer.draw`; in `Renderer`, blend the trail-fade color slightly toward warm/cool by tint. Keep it subtle.
-- [ ] **Step 4: Bloom ring visual** — `Renderer` keeps a short list of active rings (center, radius, age); `draw` expands and fades them with additive blend. `MoteApp` pushes a ring on `bloom`. Honor `reducedMotion` (skip rings).
-- [ ] **Step 5: Commit** (one commit per egg is fine)
+- [x] **Step 1: Double-click blooms the nearest mote** — in `App.tsx`, add `onDoubleClick={(e) => app.current?.bloomAt(e.clientX, e.clientY)}`. (`bloomAt` already exists on `MoteApp`.) Verify a chord flourish + (Step 4) a visual ring.
+- [x] **Step 2: Type "mote" → bloom all + key shimmer** — track recent keystrokes in `App.tsx`; on matching `"mote"`, call a new `MoteApp.bloomAll()` that emits `bloom` for every particle and briefly raises reverb. Verify.
+- [x] **Step 3: Time-of-day tint** — in `MoteApp.loop`, compute a tint from `new Date().getHours()` (warmer 18:00–06:00, cooler midday) and pass to `renderer.draw`; in `Renderer`, blend the trail-fade color slightly toward warm/cool by tint. Keep it subtle.
+- [x] **Step 4: Bloom ring visual** — `Renderer` keeps a short list of active rings (center, radius, age); `draw` expands and fades them with additive blend. `MoteApp` pushes a ring on `bloom`. Honor `reducedMotion` (skip rings).
+- [x] **Step 5: Commit** (one commit per egg is fine)
 
 ```bash
 git add -A && git commit -m "feat: easter eggs (bloom, type-to-bloom, day tint, rings)"
@@ -1355,10 +1355,10 @@ git add -A && git commit -m "feat: easter eggs (bloom, type-to-bloom, day tint, 
 **Files:**
 - Modify: `index.html` (title, theme-color, meta), `src/index.css`, others as needed
 
-- [ ] **Step 1: Metadata** — set `<title>mote</title>`, a `<meta name="theme-color" content="#0c0a12">`, and a short description in `index.html`.
-- [ ] **Step 2: Reduced-motion pass** — verify with the browser emulating `prefers-reduced-motion: reduce`: trails become opaque (no smear), rings/sunbeam suppressed, control transitions minimal. Fix any motion that ignores the flag.
-- [ ] **Step 3: Performance guard** — stress with rapid clicks/keys to the cap (~160 motes); confirm frame rate stays smooth and audio never clutters (pluck rate-limit + pad voice cap hold). If needed, lower `maxParticles` or trail cost.
-- [ ] **Step 4: Full typecheck + tests + build**
+- [x] **Step 1: Metadata** — set `<title>mote</title>`, a `<meta name="theme-color" content="#0c0a12">`, and a short description in `index.html`.
+- [x] **Step 2: Reduced-motion pass** — verify with the browser emulating `prefers-reduced-motion: reduce`: trails become opaque (no smear), rings/sunbeam suppressed, control transitions minimal. Fix any motion that ignores the flag.
+- [x] **Step 3: Performance guard** — stress with rapid clicks/keys to the cap (~160 motes); confirm frame rate stays smooth and audio never clutters (pluck rate-limit + pad voice cap hold). If needed, lower `maxParticles` or trail cost.
+- [x] **Step 4: Full typecheck + tests + build**
 
 Run:
 ```bash
@@ -1366,14 +1366,14 @@ pnpm exec tsc --noEmit && pnpm test && pnpm build
 ```
 Expected: no type errors; all Vitest suites pass; `dist/` builds clean.
 
-- [ ] **Step 5: Spec cross-check** — re-read the spec's goals (§2) and confirm each is met: simple, always-pleasant, no theory, soft/warm, infinite/self-playing, full kit (pads/plucks/moods/knobs), easter eggs. Note any gaps.
-- [ ] **Step 6: Commit**
+- [x] **Step 5: Spec cross-check** — re-read the spec's goals (§2) and confirm each is met: simple, always-pleasant, no theory, soft/warm, infinite/self-playing, full kit (pads/plucks/moods/knobs), easter eggs. Note any gaps.
+- [x] **Step 6: Commit**
 
 ```bash
 git add -A && git commit -m "chore: polish, a11y, perf guard, final verification"
 ```
 
-- [ ] **Step 7: Finish the branch** — use @superpowers:finishing-a-development-branch to decide merge vs PR.
+- [x] **Step 7: Finish the branch** — use @superpowers:finishing-a-development-branch to decide merge vs PR.
 
 ---
 
