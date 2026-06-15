@@ -817,7 +817,7 @@ git add -A && git commit -m "feat(engine): Tone.js audio engine (pads, plucks, e
 - Create: `src/engine/Renderer.ts`
 - Test: `src/engine/Renderer.test.ts`
 
-- [ ] **Step 1: Smoke test with a mock 2D context — `src/engine/Renderer.test.ts`**
+- [x] **Step 1: Smoke test with a mock 2D context — `src/engine/Renderer.test.ts`**
 
 ```ts
 import { describe, it, expect, vi } from 'vitest';
@@ -847,9 +847,9 @@ describe('Renderer', () => {
 });
 ```
 
-- [ ] **Step 2: Run it — expect FAIL.**
+- [x] **Step 2: Run it — expect FAIL.**
 
-- [ ] **Step 3: Implement `src/engine/Renderer.ts`**
+- [x] **Step 3: Implement `src/engine/Renderer.ts`**
 
 ```ts
 import { lifePhase, type Particle } from './Particle';
@@ -893,8 +893,8 @@ export class Renderer {
 }
 ```
 
-- [ ] **Step 4: Run tests — expect PASS.**
-- [ ] **Step 5: Commit**
+- [x] **Step 4: Run tests — expect PASS.**
+- [x] **Step 5: Commit**
 
 ```bash
 git add -A && git commit -m "feat(engine): canvas renderer with glow and trails"
