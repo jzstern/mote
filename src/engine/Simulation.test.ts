@@ -90,6 +90,13 @@ describe('Simulation ripples', () => {
     expect(s.rippleOverlaps.length).toBeGreaterThan(0);
   });
 
+  it('clear() also removes active ripples', () => {
+    const s = new Simulation(cfg({ rippleEnabled: true }), mulberry32(7));
+    s.ripples.push(crossingRing({ id: 1, x: 100, y: 100, age: 0 }));
+    s.clear();
+    expect(s.ripples.length).toBe(0);
+  });
+
   it('produces no ring-cross for well-separated rings', () => {
     const s = new Simulation(cfg({ rippleEnabled: true, rippleEmitIntervalSec: 1000, ringLifespanSec: 10, ringMaxRadius: 20 }), mulberry32(4));
     s.ripples.push(crossingRing({ id: 1, x: 50, y: 50, age: 5 }));

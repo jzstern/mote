@@ -120,6 +120,7 @@ export class Simulation {
   clear(): MusicalEvent[] {
     const evs = this.particles.map(p => this.event('death', p));
     this.particles = [];
+    this.clearRipples();
     return evs;
   }
 
