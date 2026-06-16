@@ -3,7 +3,7 @@ import { speedOf, lifePhase, type Particle } from './Particle';
 
 const make = (over: Partial<Particle> = {}): Particle => ({
   id: 1, pos: { x: 0, y: 0 }, vel: { x: 3, y: 4 }, size: 30,
-  age: 0, lifespan: 20, voice: 'peach', bounceCooldown: 0, ...over,
+  age: 0, lifespan: 20, voice: 'peach', bounceCooldown: 0, rippleTimer: 0, ...over,
 });
 
 describe('Particle helpers', () => {

@@ -1,5 +1,6 @@
 import type * as Tone from 'tone';
-import type { KnobValues, Mode, Mood, MusicalEvent } from './types';
+import type { KnobValues, Mode, Mood, MusicalEvent, LifeEvent, RingCrossEvent } from './types';
+import { VOICE_TIMBRE } from './palette';
 import { pitchFor } from './scale';
 
 interface PadVoice { synth: Tone.Synth; particleId: number | null; startedAt: number; }
@@ -9,9 +10,12 @@ export class AudioEngine {
   private mode: Mode = 'both';
   private mood: Mood = 'warm';
   private height = 1;
+  private width = 1;
   private lastReverbWet = 0.5;
   private lastPluckAt = -1;
   private readonly pluckMinInterval = 0.06;
+  private lastRippleAt = -1;
+  private readonly rippleMinInterval = 0.08;
   private readonly PAD_VOICES = 10;
 
   private padBus!: Tone.Gain;
@@ -23,6 +27,10 @@ export class AudioEngine {
   private filter!: Tone.Filter;
   private lfo!: Tone.LFO;
   private pluck!: Tone.PolySynth;
+  private ripple!: Tone.PolySynth;
+  private rippleBus!: Tone.Gain;
+  private rippleTone!: Tone.Filter;
+  private panner!: Tone.Panner;
   private transport!: ReturnType<typeof Tone.getTransport>;
   private padVoices: PadVoice[] = [];
   private tone!: typeof import('tone');
@@ -71,10 +79,23 @@ export class AudioEngine {
       synth.connect(this.padBus);
       this.padVoices.push({ synth, particleId: null, startedAt: 0 });
     }
+    this.rippleBus = new this.tone.Gain(0.72);
+    this.rippleTone = new this.tone.Filter({ type: 'lowpass', frequency: 1400, Q: 0.8 });
+    this.panner = new this.tone.Panner(0);
+    this.ripple = new this.tone.PolySynth(this.tone.FMSynth, {
+      harmonicity: 3, modulationIndex: 8,
+      envelope: { attack: 0.006, decay: 1.4, sustain: 0, release: 1.8 },
+      volume: -9,
+    });
+    this.ripple.connect(this.rippleTone);
+    this.rippleTone.connect(this.panner);
+    this.panner.connect(this.rippleBus);
+    this.rippleBus.connect(this.chorus);
     this.ready = true;
   }
 
   setHeight(h: number) { this.height = h; }
+  setWidth(w: number) { this.width = w; }
   setMood(m: Mood) { this.mood = m; }
   setMode(m: Mode) { this.mode = m; if (m === 'plucks') this.releaseAllPads(); }
 
@@ -108,14 +129,17 @@ export class AudioEngine {
           break;
         case 'death': this.releasePad(e.particleId); break;
         case 'bloom': this.bloom(e, now); break;
+        case 'ring-cross': this.tryRipple(e, now); break;
       }
     }
   }
 
-  private midiFor(e: MusicalEvent) { return pitchFor(this.mood, { y: e.y, height: this.height, size: e.size, speed: e.speed }); }
+  private midiFor(e: { y: number; size: number; speed: number }) {
+    return pitchFor(this.mood, { y: e.y, height: this.height, size: e.size, speed: e.speed });
+  }
   private freq(midi: number) { return this.tone.Frequency(midi, 'midi').toFrequency(); }
 
-  private allocatePad(e: MusicalEvent) {
+  private allocatePad(e: LifeEvent) {
     let v = this.padVoices.find(v => v.particleId === null);
     if (!v) { v = this.padVoices.reduce((a, b) => (a.startedAt <= b.startedAt ? a : b)); v.synth.triggerRelease(); }
     v.particleId = e.particleId; v.startedAt = this.tone.now();
@@ -138,9 +162,19 @@ export class AudioEngine {
     [0, 4, 7, 12].forEach((iv, i) => this.pluck.triggerAttackRelease(this.freq(base + iv), '4n', now + i * 0.06));
   }
 
+  private tryRipple(e: RingCrossEvent, now: number) {
+    if (now - this.lastRippleAt < this.rippleMinInterval) return;
+    this.lastRippleAt = now;
+    const brightness = (VOICE_TIMBRE[e.voiceA] + VOICE_TIMBRE[e.voiceB]) * 0.5;
+    this.rippleTone.frequency.rampTo(900 + brightness * 3600, 0.05);
+    this.panner.pan.rampTo(Math.max(-1, Math.min(1, (e.x / this.width) * 2 - 1)), 0.05);
+    const time = this.transport.nextSubdivision('4n');
+    this.ripple.triggerAttackRelease(this.freq(this.midiFor(e)), '4n', time);
+  }
+
   dispose() {
     this.transport?.stop();
-    [this.padBus, this.master, this.limiter, this.reverb, this.delay, this.chorus, this.filter, this.lfo, this.pluck]
+    [this.padBus, this.master, this.limiter, this.reverb, this.delay, this.chorus, this.filter, this.lfo, this.pluck, this.rippleBus, this.rippleTone, this.panner, this.ripple]
       .forEach(n => n?.dispose?.());
     this.padVoices.forEach(v => v.synth.dispose());
     this.ready = false;

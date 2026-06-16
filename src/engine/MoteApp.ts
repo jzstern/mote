@@ -23,15 +23,19 @@ export class MoteApp {
     this.rng = mulberry32(opts.seed ?? (Date.now() >>> 0));
     this.width = canvas.clientWidth || 800;
     this.height = canvas.clientHeight || 600;
+    const ringMaxRadius = 0.35 * Math.min(this.width, this.height);
     const cfg: SimConfig = {
       width: this.width, height: this.height,
       maxParticles: 160, sporeIntervalSec: 6, speedMul: 1, sporesEnabled: true,
+      rippleEnabled: false, rippleEmitIntervalSec: 5.5, ringLifespanSec: 3, ringMaxRadius, maxRings: 28,
     };
     this.sim = new Simulation(cfg, this.rng);
     this.audio = new AudioEngine();
     this.renderer = new Renderer(canvas, opts.reducedMotion);
     this.renderer.resize(this.width, this.height, window.devicePixelRatio || 1);
     this.audio.setHeight(this.height);
+    this.audio.setWidth(this.width);
+    this.renderer.setRippleParams(3, ringMaxRadius);
 
     for (let i = 0; i < 4; i++) {
       this.sim.spawn(
@@ -74,10 +78,12 @@ export class MoteApp {
     if (dt > 0.25) dt = 0.25;
     this.acc += dt;
     while (this.acc >= this.STEP) {
-      this.audio.handle(this.sim.step(this.STEP));
+      const events = this.sim.step(this.STEP);
+      this.audio.handle(events);
+      for (const e of events) if (e.type === 'ring-cross') this.renderer.addRippleFlash(e.x, e.y, e.voiceA, e.voiceB);
       this.acc -= this.STEP;
     }
-    this.renderer.draw(this.sim.particles, this.width, this.height, this.dayTint());
+    this.renderer.draw(this.sim.particles, this.width, this.height, this.dayTint(), this.sim.ripples, this.sim.rippleOverlaps);
   };
 
   addMote(x: number, y: number, vx = 0, vy = 0) {
@@ -109,16 +115,21 @@ export class MoteApp {
   setKnob(k: Partial<KnobValues>) {
     this.audio.setKnobs(k);
     if (k.drift != null) this.sim.setConfig({ speedMul: 0.4 + k.drift * 1.6 });
+    if (k.speed != null) this.sim.setConfig({ sporeIntervalSec: 10 - k.speed * 7.5 });
   }
   setSpores(on: boolean) { this.sim.setConfig({ sporesEnabled: on }); }
+  setRipple(on: boolean) { this.sim.setConfig({ rippleEnabled: on }); }
   setVolume(v: number) { this.audio.setVolume(v); }
   clear() { this.audio.handle(this.sim.clear()); }
 
   resize() {
     this.width = this.canvas.clientWidth;
     this.height = this.canvas.clientHeight;
-    this.sim.setConfig({ width: this.width, height: this.height });
+    const ringMaxRadius = 0.35 * Math.min(this.width, this.height);
+    this.sim.setConfig({ width: this.width, height: this.height, ringMaxRadius });
     this.audio.setHeight(this.height);
+    this.audio.setWidth(this.width);
+    this.renderer.setRippleParams(3, ringMaxRadius);
     this.renderer.resize(this.width, this.height, window.devicePixelRatio || 1);
   }
   dispose() {
