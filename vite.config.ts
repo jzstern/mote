@@ -17,6 +17,9 @@ export default defineConfig({
         riso: entry('riso.html'),
         tidepool: entry('tidepool.html'),
         aurora: entry('aurora.html'),
+        liquid: entry('liquid.html'),
+        ascii: entry('ascii.html'),
+        terminal: entry('terminal.html'),
       },
       output: {
         manualChunks(id) {
