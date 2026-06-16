@@ -79,13 +79,13 @@ export class AudioEngine {
       synth.connect(this.padBus);
       this.padVoices.push({ synth, particleId: null, startedAt: 0 });
     }
-    this.rippleBus = new this.tone.Gain(0.5);
+    this.rippleBus = new this.tone.Gain(0.72);
     this.rippleTone = new this.tone.Filter({ type: 'lowpass', frequency: 1400, Q: 0.8 });
     this.panner = new this.tone.Panner(0);
     this.ripple = new this.tone.PolySynth(this.tone.FMSynth, {
-      harmonicity: 3, modulationIndex: 6,
-      envelope: { attack: 0.008, decay: 1.4, sustain: 0, release: 1.8 },
-      volume: -15,
+      harmonicity: 3, modulationIndex: 8,
+      envelope: { attack: 0.006, decay: 1.4, sustain: 0, release: 1.8 },
+      volume: -9,
     });
     this.ripple.connect(this.rippleTone);
     this.rippleTone.connect(this.panner);
@@ -166,7 +166,7 @@ export class AudioEngine {
     if (now - this.lastRippleAt < this.rippleMinInterval) return;
     this.lastRippleAt = now;
     const brightness = (VOICE_TIMBRE[e.voiceA] + VOICE_TIMBRE[e.voiceB]) * 0.5;
-    this.rippleTone.frequency.rampTo(600 + brightness * 3200, 0.05);
+    this.rippleTone.frequency.rampTo(900 + brightness * 3600, 0.05);
     this.panner.pan.rampTo(Math.max(-1, Math.min(1, (e.x / this.width) * 2 - 1)), 0.05);
     const time = this.transport.nextSubdivision('4n');
     this.ripple.triggerAttackRelease(this.freq(this.midiFor(e)), '4n', time);
