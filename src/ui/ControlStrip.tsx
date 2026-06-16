@@ -46,15 +46,15 @@ export function ControlStrip({ settings, onChange, onClear }: {
           </button>
 
           <button onClick={() => onChange({ spores: !settings.spores })} aria-pressed={settings.spores}
-            aria-label={settings.spores ? 'pause auto-spawn' : 'resume auto-spawn'}
-            className="flex h-8 w-8 items-center justify-center rounded-full border border-white/15 text-[#b9b2cf] hover:text-[#f3eefe]">
-            {settings.spores ? (
-              <svg width="11" height="11" viewBox="0 0 10 10" aria-hidden="true">
-                <rect x="1" y="1" width="3" height="8" fill="currentColor" /><rect x="6" y="1" width="3" height="8" fill="currentColor" />
-              </svg>
-            ) : (
-              <svg width="11" height="11" viewBox="0 0 10 10" aria-hidden="true"><path d="M2 1l7 4-7 4z" fill="currentColor" /></svg>
-            )}
+            aria-label={settings.spores ? 'auto-spawn on — click to pause' : 'auto-spawn off — click to resume'}
+            title="auto-spawn"
+            className={`flex h-8 w-8 items-center justify-center rounded-full border hover:text-[#f3eefe] ${
+              settings.spores ? 'border-[#9fe6d2]/50 text-[#c7f2e6]' : 'border-white/15 text-[#6f6a86]'}`}>
+            <svg width="14" height="14" viewBox="0 0 14 14" aria-hidden="true" fill="currentColor">
+              <circle cx="7" cy="7" r="2" />
+              <circle cx="7" cy="1.7" r="1.05" /><circle cx="7" cy="12.3" r="1.05" />
+              <circle cx="1.7" cy="7" r="1.05" /><circle cx="12.3" cy="7" r="1.05" />
+            </svg>
           </button>
 
           <label className="flex flex-col items-center gap-1 text-[11px] tracking-wide text-[#7d7796]">
