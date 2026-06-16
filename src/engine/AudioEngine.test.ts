@@ -14,6 +14,7 @@ vi.mock('tone', () => {
   class Limiter { connect = vi.fn(); dispose = vi.fn(); }
   return {
     Synth, PolySynth, Reverb, FeedbackDelay, Chorus, Filter, LFO, Gain, Limiter, Panner, FMSynth: class {},
+    start: vi.fn(async () => {}),
     now: () => 0,
     getTransport: () => ({ bpm: { value: 0, rampTo: vi.fn() }, start: vi.fn(), stop: vi.fn(), nextSubdivision: () => 0 }),
     Frequency: () => ({ toFrequency: () => 440 }),

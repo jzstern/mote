@@ -9,8 +9,7 @@ Soft, warm, light. Just sine-wavey pads. Simple enough for a child.
 
 ## Status
 
-Design phase. See the spec:
-[`docs/superpowers/specs/2026-06-15-mote-ambient-generator-design.md`](docs/superpowers/specs/2026-06-15-mote-ambient-generator-design.md).
+Design phase. See the [spec](docs/superpowers/specs/2026-06-15-mote-ambient-generator-design.md).
 
 ## Stack
 
