@@ -44,8 +44,6 @@ export class MoteApp {
 
   /** Must be called from a user gesture. Starts Tone and the audio graph. */
   async unlockAudio() {
-    const Tone = await import('tone');
-    await Tone.start();
     await this.audio.init();
   }
 
