@@ -15,6 +15,7 @@ export function useMoteApp(canvasRef: React.RefObject<HTMLCanvasElement | null>)
     const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     const app = new MoteApp(canvasRef.current, { reducedMotion: reduced, theme });
     appRef.current = app;
+    if (import.meta.env.DEV) (window as unknown as { __mote?: MoteApp }).__mote = app;
     app.start(); // visuals run immediately; audio waits for unlock
     const onResize = () => app.resize();
     window.addEventListener('resize', onResize);
