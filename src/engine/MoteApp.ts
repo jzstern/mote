@@ -115,6 +115,7 @@ export class MoteApp {
   setKnob(k: Partial<KnobValues>) {
     this.audio.setKnobs(k);
     if (k.drift != null) this.sim.setConfig({ speedMul: 0.4 + k.drift * 1.6 });
+    if (k.speed != null) this.sim.setConfig({ sporeIntervalSec: 10 - k.speed * 7.5 });
   }
   setSpores(on: boolean) { this.sim.setConfig({ sporesEnabled: on }); }
   setRipple(on: boolean) { this.sim.setConfig({ rippleEnabled: on }); }
