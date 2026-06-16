@@ -1,22 +1,25 @@
 import { useEffect, useRef, useState } from 'react';
 import { MoteApp } from '../engine/MoteApp';
+import { resolveTheme, applyThemeToHead, type Theme } from '../themes';
 import { loadSettings, saveSettings, type Settings } from './storage';
 
 export function useMoteApp(canvasRef: React.RefObject<HTMLCanvasElement | null>) {
   const appRef = useRef<MoteApp | null>(null);
+  const [theme] = useState<Theme>(resolveTheme);
   const [settings, setSettings] = useState<Settings>(() => loadSettings());
   const [unlocked, setUnlocked] = useState(false);
 
   useEffect(() => {
     if (!canvasRef.current) return;
+    applyThemeToHead(theme);
     const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    const app = new MoteApp(canvasRef.current, { reducedMotion: reduced });
+    const app = new MoteApp(canvasRef.current, { reducedMotion: reduced, theme });
     appRef.current = app;
     app.start(); // visuals run immediately; audio waits for unlock
     const onResize = () => app.resize();
     window.addEventListener('resize', onResize);
     return () => { window.removeEventListener('resize', onResize); app.dispose(); appRef.current = null; };
-  }, [canvasRef]);
+  }, [canvasRef, theme]);
 
   // push settings to engine + persist
   useEffect(() => {
@@ -34,5 +37,5 @@ export function useMoteApp(canvasRef: React.RefObject<HTMLCanvasElement | null>)
     setUnlocked(true);
   }
 
-  return { app: appRef, settings, setSettings, unlocked, unlock };
+  return { app: appRef, settings, setSettings, unlocked, unlock, theme };
 }

@@ -1,25 +1,81 @@
 import { describe, it, expect, vi } from 'vitest';
 import { Renderer } from './Renderer';
 import type { Particle } from './Particle';
+import { aurora } from '../themes/aurora';
+import { sumi } from '../themes/sumi';
+import { riso } from '../themes/riso';
 
 function fakeCanvas() {
+  const ops: string[] = [];
   const ctx = {
-    setTransform: vi.fn(), fillRect: vi.fn(), beginPath: vi.fn(), arc: vi.fn(), fill: vi.fn(),
+    setTransform: vi.fn(),
+    fillRect: vi.fn(),
+    beginPath: vi.fn(),
+    arc: vi.fn(),
+    fill: vi.fn(),
+    stroke: vi.fn(),
+    setLineDash: vi.fn(),
     createRadialGradient: vi.fn(() => ({ addColorStop: vi.fn() })),
-    globalCompositeOperation: '', fillStyle: '' as unknown,
+    fillStyle: '' as unknown,
+    strokeStyle: '' as unknown,
+    lineWidth: 0,
   };
-  return { canvas: { width: 0, height: 0, getContext: () => ctx } as unknown as HTMLCanvasElement, ctx };
+  let gco = '';
+  Object.defineProperty(ctx, 'globalCompositeOperation', {
+    get: () => gco,
+    set: (v: string) => {
+      gco = v;
+      ops.push(v);
+    },
+  });
+  return {
+    canvas: { width: 0, height: 0, getContext: () => ctx } as unknown as HTMLCanvasElement,
+    ctx,
+    ops,
+  };
 }
+
 const p = (over: Partial<Particle> = {}): Particle => ({
-  id: 1, pos: { x: 10, y: 10 }, vel: { x: 0, y: 0 }, size: 30, age: 5, lifespan: 20, voice: 'aqua', bounceCooldown: 0, ...over,
+  id: 1,
+  pos: { x: 10, y: 10 },
+  vel: { x: 0, y: 0 },
+  size: 30,
+  age: 5,
+  lifespan: 20,
+  voice: 'aqua',
+  bounceCooldown: 0,
+  ...over,
 });
 
 describe('Renderer', () => {
-  it('draws a trail fill then a glow per particle', () => {
-    const { canvas, ctx } = fakeCanvas();
-    const r = new Renderer(canvas, false);
-    r.draw([p(), p({ id: 2 })], 800, 600, 0);
-    expect(ctx.fillRect).toHaveBeenCalled();        // trail fade
-    expect(ctx.arc).toHaveBeenCalledTimes(2);       // one glow per particle
+  it('glow mode: trail fill then one additive glow per particle', () => {
+    const { canvas, ctx, ops } = fakeCanvas();
+    const r = new Renderer(canvas, aurora, false);
+    r.draw([p(), p({ id: 2 })], 800, 600);
+    expect(ctx.fillRect).toHaveBeenCalled();
+    expect(ctx.arc).toHaveBeenCalledTimes(2);
+    expect(ops).toContain('lighter');
+  });
+
+  it('ink mode draws without throwing and never blends additively', () => {
+    const { canvas, ops } = fakeCanvas();
+    const r = new Renderer(canvas, sumi, false);
+    expect(() => r.draw([p()], 800, 600)).not.toThrow();
+    expect(ops).not.toContain('lighter');
+  });
+
+  it('halftone mode draws without throwing and never blends additively', () => {
+    const { canvas, ops } = fakeCanvas();
+    const r = new Renderer(canvas, riso, false);
+    expect(() => r.draw([p(), p({ id: 2, voice: 'gold' })], 800, 600)).not.toThrow();
+    expect(ops).not.toContain('lighter');
+  });
+
+  it('splat rings (sumi) clear after their lifetime', () => {
+    const { canvas } = fakeCanvas();
+    const r = new Renderer(canvas, sumi, false);
+    r.addRing(100, 100);
+    for (let i = 0; i < 40; i++) r.draw([], 800, 600);
+    expect(() => r.draw([], 800, 600)).not.toThrow();
   });
 });

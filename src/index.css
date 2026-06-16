@@ -1,8 +1,12 @@
 @import "tailwindcss";
 
-:root { color-scheme: dark; }
 html, body, #root { height: 100%; margin: 0; }
-body { background: #0c0a12; overflow: hidden; }
+body {
+  background: var(--mote-bg, #0c0a12);
+  color: var(--mote-text, #efe9fb);
+  font-family: var(--mote-font, system-ui, sans-serif);
+  overflow: hidden;
+}
 
 button:not(:disabled),
 [role="button"]:not([aria-disabled="true"]),

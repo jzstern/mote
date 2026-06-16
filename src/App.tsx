@@ -1,12 +1,13 @@
 import { useRef, useState } from 'react';
 import { Canvas } from './ui/Canvas';
 import { ControlStrip } from './ui/ControlStrip';
+import { ThemeSwitcher } from './ui/ThemeSwitcher';
 import { useMoteApp } from './ui/useMoteApp';
 import type { Settings } from './ui/storage';
 
 export default function App() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const { app, settings, setSettings, unlocked, unlock } = useMoteApp(canvasRef);
+  const { app, settings, setSettings, unlocked, unlock, theme } = useMoteApp(canvasRef);
   const [hint, setHint] = useState(true);
   const drag = useRef<{ x: number; y: number; t: number } | null>(null);
   const typed = useRef('');
@@ -39,9 +40,10 @@ export default function App() {
       <Canvas canvasRef={canvasRef} />
       {hint && (
         <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
-          <span className="text-sm tracking-widest text-white/30">click anywhere</span>
+          <span className="text-sm tracking-widest" style={{ color: 'var(--mote-text-faint)' }}>{theme.copy.hint}</span>
         </div>
       )}
+      <ThemeSwitcher current={theme.id} />
       <div className="pointer-events-none absolute inset-x-0 bottom-0 flex justify-center">
         <ControlStrip settings={settings} onChange={patch} onClear={() => app.current?.clear()} />
       </div>

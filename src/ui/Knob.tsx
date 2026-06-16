@@ -1,7 +1,7 @@
 import { useRef } from 'react';
 
-export function Knob({ label, value, onChange, glow }: {
-  label: string; value: number; onChange: (v: number) => void; glow: string;
+export function Knob({ label, value, onChange }: {
+  label: string; value: number; onChange: (v: number) => void;
 }) {
   const start = useRef<{ y: number; v: number } | null>(null);
   const angle = -135 + value * 270;
@@ -26,13 +26,13 @@ export function Knob({ label, value, onChange, glow }: {
           if (e.key === 'ArrowUp' || e.key === 'ArrowRight') onChange(Math.min(1, value + 0.05));
           if (e.key === 'ArrowDown' || e.key === 'ArrowLeft') onChange(Math.max(0, value - 0.05));
         }}
-        className="relative h-9 w-9 rounded-full border border-white/15 touch-none"
-        style={{ background: 'radial-gradient(circle at 50% 38%, #2a2640, #15121f)', boxShadow: `0 0 16px ${glow}` }}
+        className="relative h-9 w-9 rounded-full border border-[var(--mote-border)] touch-none"
+        style={{ background: 'var(--mote-knob-face)', boxShadow: '0 0 16px var(--mote-knob-glow)' }}
       >
-        <span className="absolute left-1/2 top-1.5 h-2.5 w-0.5 rounded bg-[#f3eefe]"
+        <span className="absolute left-1/2 top-1.5 h-2.5 w-0.5 rounded bg-[var(--mote-knob-indicator)]"
           style={{ transform: `translateX(-50%) rotate(${angle}deg)`, transformOrigin: '50% 12px' }} />
       </div>
-      <span className="text-[11px] tracking-wide text-[#7d7796]">{label}</span>
+      <span className="text-[11px] tracking-wide text-[var(--mote-text-faint)]">{label}</span>
     </div>
   );
 }

@@ -3,8 +3,9 @@ import { AudioEngine } from './AudioEngine';
 import { Renderer } from './Renderer';
 import { mulberry32, randRange, type Rng } from './rng';
 import type { KnobValues, Mode, Mood } from './types';
+import type { Theme } from '../themes/types';
 
-export interface MoteAppOptions { seed?: number; reducedMotion?: boolean; }
+export interface MoteAppOptions { seed?: number; reducedMotion?: boolean; theme: Theme; }
 
 export class MoteApp {
   private rng: Rng;
@@ -18,9 +19,11 @@ export class MoteApp {
   private width: number;
   private height: number;
   private running = false;
+  private ringOnBounce: boolean;
 
-  constructor(private canvas: HTMLCanvasElement, opts: MoteAppOptions = {}) {
+  constructor(private canvas: HTMLCanvasElement, opts: MoteAppOptions) {
     this.rng = mulberry32(opts.seed ?? (Date.now() >>> 0));
+    this.ringOnBounce = opts.theme.render.ringOnBounce;
     this.width = canvas.clientWidth || 800;
     this.height = canvas.clientHeight || 600;
     const cfg: SimConfig = {
@@ -29,7 +32,7 @@ export class MoteApp {
     };
     this.sim = new Simulation(cfg, this.rng);
     this.audio = new AudioEngine();
-    this.renderer = new Renderer(canvas, opts.reducedMotion);
+    this.renderer = new Renderer(canvas, opts.theme, opts.reducedMotion);
     this.renderer.resize(this.width, this.height, window.devicePixelRatio || 1);
     this.audio.setHeight(this.height);
 
@@ -61,11 +64,6 @@ export class MoteApp {
 
   private onVisibility = () => { if (document.hidden) this.stop(); else this.start(); };
 
-  private dayTint(): number {
-    const h = new Date().getHours() + new Date().getMinutes() / 60;
-    return Math.cos((h / 24) * Math.PI * 2) * 0.6;
-  }
-
   private loop = (t: number) => {
     if (!this.running) return;
     this.raf = requestAnimationFrame(this.loop);
@@ -74,10 +72,14 @@ export class MoteApp {
     if (dt > 0.25) dt = 0.25;
     this.acc += dt;
     while (this.acc >= this.STEP) {
-      this.audio.handle(this.sim.step(this.STEP));
+      const events = this.sim.step(this.STEP);
+      this.audio.handle(events);
+      if (this.ringOnBounce) {
+        for (const ev of events) if (ev.type === 'bounce') this.renderer.addRing(ev.x, ev.y);
+      }
       this.acc -= this.STEP;
     }
-    this.renderer.draw(this.sim.particles, this.width, this.height, this.dayTint());
+    this.renderer.draw(this.sim.particles, this.width, this.height);
   };
 
   addMote(x: number, y: number, vx = 0, vy = 0) {
