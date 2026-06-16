@@ -15,10 +15,19 @@ describe('theme registry', () => {
     delete (globalThis as { localStorage?: unknown }).localStorage;
   });
 
-  it('has five themes with sumi as default', () => {
-    expect(THEME_LIST).toHaveLength(5);
+  it('has eight themes with sumi as default', () => {
+    expect(THEME_LIST).toHaveLength(8);
     expect(DEFAULT_THEME_ID).toBe('sumi');
     expect(THEMES[DEFAULT_THEME_ID]).toBeDefined();
+  });
+
+  it('wires the new interface modes and variant', () => {
+    expect(THEMES.liquid.render.mode).toBe('shader');
+    expect(THEMES.ascii.render.mode).toBe('ascii');
+    expect(THEMES.ascii.render.ascii?.cell).toBeGreaterThan(0);
+    expect(THEMES.terminal.render.mode).toBe('ascii');
+    expect(THEMES.terminal.render.ascii?.mono).toBeDefined();
+    expect(THEMES.terminal.chromeVariant).toBe('terminal');
   });
 
   it('every theme defines all six voice colors and identity fields', () => {

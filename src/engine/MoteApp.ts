@@ -1,6 +1,6 @@
 import { Simulation, type SimConfig } from './Simulation';
 import { AudioEngine } from './AudioEngine';
-import { Renderer } from './Renderer';
+import { createRenderer, type MoteRenderer } from './MoteRenderer';
 import { mulberry32, randRange, type Rng } from './rng';
 import type { KnobValues, Mode, Mood } from './types';
 import type { Theme } from '../themes/types';
@@ -11,7 +11,7 @@ export class MoteApp {
   private rng: Rng;
   private sim: Simulation;
   private audio: AudioEngine;
-  private renderer: Renderer;
+  private renderer: MoteRenderer;
   private raf = 0;
   private last = 0;
   private acc = 0;
@@ -32,7 +32,7 @@ export class MoteApp {
     };
     this.sim = new Simulation(cfg, this.rng);
     this.audio = new AudioEngine();
-    this.renderer = new Renderer(canvas, opts.theme, opts.reducedMotion);
+    this.renderer = createRenderer(canvas, opts.theme, opts.reducedMotion ?? false);
     this.renderer.resize(this.width, this.height, window.devicePixelRatio || 1);
     this.audio.setHeight(this.height);
 
@@ -115,6 +115,7 @@ export class MoteApp {
   setSpores(on: boolean) { this.sim.setConfig({ sporesEnabled: on }); }
   setVolume(v: number) { this.audio.setVolume(v); }
   clear() { this.audio.handle(this.sim.clear()); }
+  particleCount(): number { return this.sim.particles.length; }
 
   resize() {
     this.width = this.canvas.clientWidth;

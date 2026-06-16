@@ -1,5 +1,6 @@
 @import "tailwindcss";
 
+:root { --mote-radius: 9999px; --mote-radius-box: 12px; }
 html, body, #root { height: 100%; margin: 0; }
 body {
   background: var(--mote-bg, #0c0a12);

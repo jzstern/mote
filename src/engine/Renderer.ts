@@ -7,9 +7,21 @@ interface Ring {
   age: number;
 }
 
+interface AsciiGrid {
+  cols: number;
+  rows: number;
+  bright: Float32Array;
+  cr: Float32Array;
+  cg: Float32Array;
+  cb: Float32Array;
+}
+
+const ASCII_CHARS = ' .:-=+*#%@';
+
 export class Renderer {
   private ctx: CanvasRenderingContext2D;
   private rings: Ring[] = [];
+  private asciiGrid: AsciiGrid | null = null;
 
   constructor(
     private canvas: HTMLCanvasElement,
@@ -45,6 +57,9 @@ export class Renderer {
         break;
       case 'halftone':
         this.drawHalftone(particles, width, height);
+        break;
+      case 'ascii':
+        this.drawAscii(particles, width, height);
         break;
       default:
         this.drawGlow(particles, width, height);
@@ -140,6 +155,71 @@ export class Renderer {
       ctx.beginPath();
       ctx.arc(p.pos.x, p.pos.y, radius, 0, Math.PI * 2);
       ctx.fill();
+    }
+  }
+
+  private drawAscii(particles: Particle[], width: number, height: number) {
+    const ctx = this.ctx;
+    const fs = this.theme.render.ascii?.cell ?? 13;
+    const cw = fs * 0.6;
+    const ch = fs;
+    const cols = Math.max(1, Math.ceil(width / cw));
+    const rows = Math.max(1, Math.ceil(height / ch));
+    const total = cols * rows;
+
+    const [br, bg, bb] = this.theme.render.background;
+    ctx.globalCompositeOperation = 'source-over';
+    ctx.fillStyle = `rgb(${br}, ${bg}, ${bb})`;
+    ctx.fillRect(0, 0, width, height);
+
+    let G = this.asciiGrid;
+    if (!G || G.cols !== cols || G.rows !== rows) {
+      G = { cols, rows, bright: new Float32Array(total), cr: new Float32Array(total), cg: new Float32Array(total), cb: new Float32Array(total) };
+      this.asciiGrid = G;
+    } else {
+      G.bright.fill(0); G.cr.fill(0); G.cg.fill(0); G.cb.fill(0);
+    }
+
+    for (const p of particles) {
+      const [r, g, b] = this.theme.render.palette[p.voice];
+      const env = this.envelope(p);
+      const radPx = Math.max(cw, p.size * 0.9);
+      const x0 = Math.max(0, Math.floor((p.pos.x - radPx) / cw));
+      const x1 = Math.min(cols - 1, Math.ceil((p.pos.x + radPx) / cw));
+      const y0 = Math.max(0, Math.floor((p.pos.y - radPx) / ch));
+      const y1 = Math.min(rows - 1, Math.ceil((p.pos.y + radPx) / ch));
+      for (let gy = y0; gy <= y1; gy++) {
+        for (let gx = x0; gx <= x1; gx++) {
+          const dx = (gx + 0.5) * cw - p.pos.x;
+          const dy = (gy + 0.5) * ch - p.pos.y;
+          const d = Math.hypot(dx, dy) / radPx;
+          if (d > 1) continue;
+          const w = (1 - d) * (1 - d) * env;
+          const idx = gy * cols + gx;
+          G.bright[idx] += w;
+          G.cr[idx] += r * w;
+          G.cg[idx] += g * w;
+          G.cb[idx] += b * w;
+        }
+      }
+    }
+
+    const mono = this.theme.render.ascii?.mono;
+    ctx.font = `${fs}px ${this.theme.font.cssStack}`;
+    ctx.textBaseline = 'top';
+    const last = ASCII_CHARS.length - 1;
+    for (let i = 0; i < total; i++) {
+      const v = G.bright[i];
+      if (v < 0.06) continue;
+      const ch2 = ASCII_CHARS[Math.min(last, Math.max(1, Math.round(v * last * 1.25)))];
+      const gx = i % cols;
+      const gy = (i / cols) | 0;
+      if (mono) {
+        ctx.fillStyle = `rgba(${mono[0]}, ${mono[1]}, ${mono[2]}, ${Math.min(1, 0.35 + v * 0.8)})`;
+      } else {
+        ctx.fillStyle = `rgba(${Math.round(G.cr[i] / v)}, ${Math.round(G.cg[i] / v)}, ${Math.round(G.cb[i] / v)}, ${Math.min(1, 0.5 + v * 0.6)})`;
+      }
+      ctx.fillText(ch2, gx * cw, gy * ch);
     }
   }
 

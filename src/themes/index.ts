@@ -4,6 +4,9 @@ import { botanical } from './botanical';
 import { riso } from './riso';
 import { tidepool } from './tidepool';
 import { aurora } from './aurora';
+import { liquid } from './liquid';
+import { ascii } from './ascii';
+import { terminal } from './terminal';
 
 export type { Theme, ThemeId, RGB } from './types';
 
@@ -13,8 +16,12 @@ declare global {
   }
 }
 
-export const THEMES: Record<ThemeId, Theme> = { sumi, botanical, riso, tidepool, aurora };
-export const THEME_LIST: readonly Theme[] = [sumi, botanical, riso, tidepool, aurora];
+export const THEMES: Record<ThemeId, Theme> = {
+  sumi, botanical, riso, tidepool, aurora, liquid, ascii, terminal,
+};
+export const THEME_LIST: readonly Theme[] = [
+  sumi, botanical, riso, tidepool, aurora, liquid, ascii, terminal,
+];
 export const DEFAULT_THEME_ID: ThemeId = 'sumi';
 
 const STORAGE_KEY = 'mote.theme';

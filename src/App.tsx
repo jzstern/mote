@@ -1,7 +1,8 @@
 import { useRef, useState } from 'react';
 import { Canvas } from './ui/Canvas';
 import { ControlStrip } from './ui/ControlStrip';
-import { ThemeSwitcher } from './ui/ThemeSwitcher';
+import { TerminalControlStrip } from './ui/TerminalControlStrip';
+import { ThemeDropdown } from './ui/ThemeDropdown';
 import { useMoteApp } from './ui/useMoteApp';
 import type { Settings } from './ui/storage';
 
@@ -43,9 +44,11 @@ export default function App() {
           <span className="text-sm tracking-widest" style={{ color: 'var(--mote-text-faint)' }}>{theme.copy.hint}</span>
         </div>
       )}
-      <ThemeSwitcher current={theme.id} />
+      <ThemeDropdown current={theme.id} />
       <div className="pointer-events-none absolute inset-x-0 bottom-0 flex justify-center">
-        <ControlStrip settings={settings} onChange={patch} onClear={() => app.current?.clear()} />
+        {theme.chromeVariant === 'terminal'
+          ? <TerminalControlStrip settings={settings} onChange={patch} onClear={() => app.current?.clear()} app={app} />
+          : <ControlStrip settings={settings} onChange={patch} onClear={() => app.current?.clear()} />}
       </div>
     </div>
   );

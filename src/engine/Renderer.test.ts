@@ -4,6 +4,7 @@ import type { Particle } from './Particle';
 import { aurora } from '../themes/aurora';
 import { sumi } from '../themes/sumi';
 import { riso } from '../themes/riso';
+import { ascii } from '../themes/ascii';
 
 function fakeCanvas() {
   const ops: string[] = [];
@@ -14,11 +15,14 @@ function fakeCanvas() {
     arc: vi.fn(),
     fill: vi.fn(),
     stroke: vi.fn(),
+    fillText: vi.fn(),
     setLineDash: vi.fn(),
     createRadialGradient: vi.fn(() => ({ addColorStop: vi.fn() })),
     fillStyle: '' as unknown,
     strokeStyle: '' as unknown,
     lineWidth: 0,
+    font: '',
+    textBaseline: '' as unknown,
   };
   let gco = '';
   Object.defineProperty(ctx, 'globalCompositeOperation', {
@@ -68,6 +72,14 @@ describe('Renderer', () => {
     const { canvas, ops } = fakeCanvas();
     const r = new Renderer(canvas, riso, false);
     expect(() => r.draw([p(), p({ id: 2, voice: 'gold' })], 800, 600)).not.toThrow();
+    expect(ops).not.toContain('lighter');
+  });
+
+  it('ascii mode draws glyphs without throwing and never blends additively', () => {
+    const { canvas, ctx, ops } = fakeCanvas();
+    const r = new Renderer(canvas, ascii, false);
+    expect(() => r.draw([p({ size: 60 }), p({ id: 2, voice: 'gold', pos: { x: 200, y: 150 } })], 800, 600)).not.toThrow();
+    expect(ctx.fillText).toHaveBeenCalled();
     expect(ops).not.toContain('lighter');
   });
 
