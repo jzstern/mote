@@ -34,6 +34,8 @@ export class MoteApp {
     this.renderer = new Renderer(canvas, opts.reducedMotion);
     this.renderer.resize(this.width, this.height, window.devicePixelRatio || 1);
     this.audio.setHeight(this.height);
+    this.audio.setWidth(this.width);
+    this.renderer.setRippleParams(3, ringMaxRadius);
 
     for (let i = 0; i < 4; i++) {
       this.sim.spawn(
@@ -78,10 +80,12 @@ export class MoteApp {
     if (dt > 0.25) dt = 0.25;
     this.acc += dt;
     while (this.acc >= this.STEP) {
-      this.audio.handle(this.sim.step(this.STEP));
+      const events = this.sim.step(this.STEP);
+      this.audio.handle(events);
+      for (const e of events) if (e.type === 'ring-cross') this.renderer.addRippleFlash(e.x, e.y, e.voiceA, e.voiceB);
       this.acc -= this.STEP;
     }
-    this.renderer.draw(this.sim.particles, this.width, this.height, this.dayTint());
+    this.renderer.draw(this.sim.particles, this.width, this.height, this.dayTint(), this.sim.ripples, this.sim.rippleOverlaps);
   };
 
   addMote(x: number, y: number, vx = 0, vy = 0) {
@@ -115,14 +119,18 @@ export class MoteApp {
     if (k.drift != null) this.sim.setConfig({ speedMul: 0.4 + k.drift * 1.6 });
   }
   setSpores(on: boolean) { this.sim.setConfig({ sporesEnabled: on }); }
+  setRipple(on: boolean) { this.sim.setConfig({ rippleEnabled: on }); }
   setVolume(v: number) { this.audio.setVolume(v); }
   clear() { this.audio.handle(this.sim.clear()); }
 
   resize() {
     this.width = this.canvas.clientWidth;
     this.height = this.canvas.clientHeight;
-    this.sim.setConfig({ width: this.width, height: this.height });
+    const ringMaxRadius = 0.35 * Math.min(this.width, this.height);
+    this.sim.setConfig({ width: this.width, height: this.height, ringMaxRadius });
     this.audio.setHeight(this.height);
+    this.audio.setWidth(this.width);
+    this.renderer.setRippleParams(3, ringMaxRadius);
     this.renderer.resize(this.width, this.height, window.devicePixelRatio || 1);
   }
   dispose() {
