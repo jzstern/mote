@@ -22,7 +22,7 @@ export function useMoteApp(canvasRef: React.RefObject<HTMLCanvasElement | null>)
   useEffect(() => {
     const app = appRef.current; if (!app) return;
     app.setMode(settings.mode); app.setMood(settings.mood);
-    app.setKnob(settings.knobs); app.setVolume(settings.volume); app.setSpores(settings.spores);
+    app.setKnob(settings.knobs); app.setVolume(settings.volume); app.setSpores(settings.spores); app.setRipple(settings.ripple);
     saveSettings(settings);
   }, [settings]);
 
@@ -30,7 +30,7 @@ export function useMoteApp(canvasRef: React.RefObject<HTMLCanvasElement | null>)
     if (unlocked || !appRef.current) return;
     await appRef.current.unlockAudio();
     appRef.current.setMode(settings.mode); appRef.current.setMood(settings.mood);
-    appRef.current.setKnob(settings.knobs); appRef.current.setVolume(settings.volume);
+    appRef.current.setKnob(settings.knobs); appRef.current.setVolume(settings.volume); appRef.current.setRipple(settings.ripple);
     setUnlocked(true);
   }
 

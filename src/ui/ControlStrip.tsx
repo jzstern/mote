@@ -36,6 +36,15 @@ export function ControlStrip({ settings, onChange, onClear }: {
         </div>
 
         <div className="flex items-center gap-3 self-center">
+          <button onClick={() => onChange({ ripple: !settings.ripple })} aria-pressed={settings.ripple}
+            aria-label={settings.ripple ? 'disable ripple mode' : 'enable ripple mode'}
+            className={`flex h-8 w-8 items-center justify-center rounded-full border text-[#b9b2cf] hover:text-[#f3eefe] ${
+              settings.ripple ? 'border-[#cdbcff]/60 text-[#f3eefe]' : 'border-white/15'}`}>
+            <svg width="13" height="13" viewBox="0 0 14 14" aria-hidden="true" fill="none" stroke="currentColor" strokeWidth="1">
+              <circle cx="7" cy="7" r="2" /><circle cx="7" cy="7" r="4" /><circle cx="7" cy="7" r="6" />
+            </svg>
+          </button>
+
           <button onClick={() => onChange({ spores: !settings.spores })} aria-pressed={settings.spores}
             aria-label={settings.spores ? 'pause auto-spawn' : 'resume auto-spawn'}
             className="flex h-8 w-8 items-center justify-center rounded-full border border-white/15 text-[#b9b2cf] hover:text-[#f3eefe]">

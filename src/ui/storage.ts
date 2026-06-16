@@ -1,11 +1,11 @@
 import type { KnobValues, Mode, Mood } from '../engine/types';
 
-export interface Settings { mode: Mode; mood: Mood; knobs: KnobValues; volume: number; spores: boolean; }
+export interface Settings { mode: Mode; mood: Mood; knobs: KnobValues; volume: number; spores: boolean; ripple: boolean; }
 const KEY = 'mote.settings.v1';
 export const DEFAULTS: Settings = {
   mode: 'both', mood: 'warm',
   knobs: { space: 0.6, echo: 0.3, tone: 0.5, drift: 0.5, speed: 0.5 },
-  volume: 0.9, spores: true,
+  volume: 0.9, spores: true, ripple: false,
 };
 
 export function loadSettings(): Settings {
