@@ -1,5 +1,5 @@
 import * as Tone from 'tone';
-import type { KnobValues, Mode, Mood, MusicalEvent } from './types';
+import type { KnobValues, Mode, Mood, MusicalEvent, LifeEvent } from './types';
 import { pitchFor } from './scale';
 
 interface PadVoice { synth: Tone.Synth; particleId: number | null; startedAt: number; }
@@ -109,10 +109,12 @@ export class AudioEngine {
     }
   }
 
-  private midiFor(e: MusicalEvent) { return pitchFor(this.mood, { y: e.y, height: this.height, size: e.size, speed: e.speed }); }
+  private midiFor(e: { y: number; size: number; speed: number }) {
+    return pitchFor(this.mood, { y: e.y, height: this.height, size: e.size, speed: e.speed });
+  }
   private freq(midi: number) { return Tone.Frequency(midi, 'midi').toFrequency(); }
 
-  private allocatePad(e: MusicalEvent) {
+  private allocatePad(e: LifeEvent) {
     let v = this.padVoices.find(v => v.particleId === null);
     if (!v) { v = this.padVoices.reduce((a, b) => (a.startedAt <= b.startedAt ? a : b)); v.synth.triggerRelease(); }
     v.particleId = e.particleId; v.startedAt = Tone.now();

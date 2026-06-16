@@ -20,9 +20,9 @@ vi.mock('tone', () => {
 });
 
 import { AudioEngine } from './AudioEngine';
-import type { MusicalEvent } from './types';
+import type { LifeEvent } from './types';
 
-const ev = (over: Partial<MusicalEvent> = {}): MusicalEvent => ({
+const ev = (over: Partial<LifeEvent> = {}): LifeEvent => ({
   type: 'born', particleId: 1, x: 0, y: 0, size: 30, speed: 0, voice: 'peach', ...over,
 });
 

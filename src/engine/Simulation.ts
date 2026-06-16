@@ -1,4 +1,4 @@
-import type { MusicalEvent } from './types';
+import type { LifeEvent, MusicalEvent } from './types';
 import { speedOf, type Particle } from './Particle';
 import { type Rng, randRange, pick } from './rng';
 import { VOICES } from './palette';
@@ -123,7 +123,7 @@ export class Simulation {
     this.particles.splice(idx, 1);
   }
 
-  private event(type: MusicalEvent['type'], p: Particle): MusicalEvent {
+  private event(type: LifeEvent['type'], p: Particle): LifeEvent {
     return { type, particleId: p.id, x: p.pos.x, y: p.pos.y, size: p.size, speed: speedOf(p), voice: p.voice };
   }
 }
