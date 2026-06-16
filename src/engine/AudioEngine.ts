@@ -1,4 +1,4 @@
-import * as Tone from 'tone';
+import type * as Tone from 'tone';
 import type { KnobValues, Mode, Mood, MusicalEvent } from './types';
 import { pitchFor } from './scale';
 
@@ -25,21 +25,24 @@ export class AudioEngine {
   private pluck!: Tone.PolySynth;
   private transport!: ReturnType<typeof Tone.getTransport>;
   private padVoices: PadVoice[] = [];
+  private tone!: typeof import('tone');
 
   async init() {
     if (this.ready) return;
-    this.master = new Tone.Gain(0.9);
-    this.limiter = new Tone.Limiter(-1);
-    this.reverb = new Tone.Reverb({ decay: 9, preDelay: 0.03, wet: 0.5 });
+    this.tone = await import('tone');
+    await this.tone.start();
+    this.master = new this.tone.Gain(0.9);
+    this.limiter = new this.tone.Limiter(-1);
+    this.reverb = new this.tone.Reverb({ decay: 9, preDelay: 0.03, wet: 0.5 });
     await this.reverb.generate();
-    this.delay = new Tone.FeedbackDelay({ delayTime: 0.38, feedback: 0.32, wet: 0.18 });
-    this.chorus = new Tone.Chorus({ frequency: 0.6, delayTime: 4, depth: 0.4, wet: 0.4 }).start();
-    this.filter = new Tone.Filter({ type: 'lowpass', frequency: 1200, Q: 0.6 });
-    this.lfo = new Tone.LFO({ frequency: 0.05, min: 700, max: 1500 }).start();
+    this.delay = new this.tone.FeedbackDelay({ delayTime: 0.38, feedback: 0.32, wet: 0.18 });
+    this.chorus = new this.tone.Chorus({ frequency: 0.6, delayTime: 4, depth: 0.4, wet: 0.4 }).start();
+    this.filter = new this.tone.Filter({ type: 'lowpass', frequency: 1200, Q: 0.6 });
+    this.lfo = new this.tone.LFO({ frequency: 0.05, min: 700, max: 1500 }).start();
     this.lfo.connect(this.filter.frequency);
 
-    this.padBus = new Tone.Gain(0.5);
-    this.pluck = new Tone.PolySynth(Tone.FMSynth, {
+    this.padBus = new this.tone.Gain(0.5);
+    this.pluck = new this.tone.PolySynth(this.tone.FMSynth, {
       harmonicity: 2, modulationIndex: 4,
       envelope: { attack: 0.005, decay: 0.5, sustain: 0, release: 1.2 },
       volume: -11,
@@ -54,12 +57,12 @@ export class AudioEngine {
     this.limiter.connect(this.master);
     this.master.toDestination();
 
-    this.transport = Tone.getTransport();
+    this.transport = this.tone.getTransport();
     this.transport.bpm.value = 70;
     this.transport.start();
 
     for (let i = 0; i < this.PAD_VOICES; i++) {
-      const synth = new Tone.Synth({
+      const synth = new this.tone.Synth({
         oscillator: { type: 'sine' },
         envelope: { attack: 2.5, decay: 1, sustain: 0.7, release: 4 },
         volume: -16,
@@ -93,7 +96,7 @@ export class AudioEngine {
 
   handle(events: MusicalEvent[]) {
     if (!this.ready) return;
-    const now = Tone.now();
+    const now = this.tone.now();
     for (const e of events) {
       switch (e.type) {
         case 'born':
@@ -110,12 +113,12 @@ export class AudioEngine {
   }
 
   private midiFor(e: MusicalEvent) { return pitchFor(this.mood, { y: e.y, height: this.height, size: e.size, speed: e.speed }); }
-  private freq(midi: number) { return Tone.Frequency(midi, 'midi').toFrequency(); }
+  private freq(midi: number) { return this.tone.Frequency(midi, 'midi').toFrequency(); }
 
   private allocatePad(e: MusicalEvent) {
     let v = this.padVoices.find(v => v.particleId === null);
     if (!v) { v = this.padVoices.reduce((a, b) => (a.startedAt <= b.startedAt ? a : b)); v.synth.triggerRelease(); }
-    v.particleId = e.particleId; v.startedAt = Tone.now();
+    v.particleId = e.particleId; v.startedAt = this.tone.now();
     v.synth.triggerAttack(this.freq(this.midiFor(e)));
   }
   private releasePad(pid: number) {
