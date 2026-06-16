@@ -23,9 +23,11 @@ export class MoteApp {
     this.rng = mulberry32(opts.seed ?? (Date.now() >>> 0));
     this.width = canvas.clientWidth || 800;
     this.height = canvas.clientHeight || 600;
+    const ringMaxRadius = 0.35 * Math.min(this.width, this.height);
     const cfg: SimConfig = {
       width: this.width, height: this.height,
       maxParticles: 160, sporeIntervalSec: 6, speedMul: 1, sporesEnabled: true,
+      rippleEnabled: false, rippleEmitIntervalSec: 5.5, ringLifespanSec: 3, ringMaxRadius, maxRings: 28,
     };
     this.sim = new Simulation(cfg, this.rng);
     this.audio = new AudioEngine();

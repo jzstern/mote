@@ -9,6 +9,7 @@ export interface Particle {
   lifespan: number;   // seconds
   voice: VoiceType;
   bounceCooldown: number; // seconds until it may emit another bounce event
+  rippleTimer: number;    // seconds until it emits its next ripple ring
 }
 
 export function speedOf(p: Particle): number { return Math.hypot(p.vel.x, p.vel.y); }

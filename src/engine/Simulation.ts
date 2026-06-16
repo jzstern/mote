@@ -2,6 +2,7 @@ import type { LifeEvent, MusicalEvent } from './types';
 import { speedOf, type Particle } from './Particle';
 import { type Rng, randRange, pick } from './rng';
 import { VOICES } from './palette';
+import { ringRadius, circleIntersection, type RippleRing, type RippleOverlap } from './ripple';
 
 export interface SimConfig {
   width: number;
@@ -10,14 +11,23 @@ export interface SimConfig {
   sporeIntervalSec: number;
   speedMul: number;       // driven by the "drift" knob
   sporesEnabled: boolean;
+  rippleEnabled: boolean;
+  rippleEmitIntervalSec: number;
+  ringLifespanSec: number;
+  ringMaxRadius: number;
+  maxRings: number;
 }
 
 const BOUNCE_COOLDOWN = 0.12;
 
 export class Simulation {
   particles: Particle[] = [];
+  ripples: RippleRing[] = [];
+  rippleOverlaps: RippleOverlap[] = [];
   private nextId = 1;
   private sporeTimer = 0;
+  private nextRingId = 1;
+  private firedPairs = new Set<string>();
 
   constructor(private cfg: SimConfig, private rng: Rng) {}
 
@@ -33,6 +43,7 @@ export class Simulation {
       lifespan: randRange(this.rng, 18, 42),
       voice: pick(this.rng, VOICES),
       bounceCooldown: 0,
+      rippleTimer: this.cfg.rippleEmitIntervalSec * randRange(this.rng, 0.7, 1.3),
     };
     this.particles.push(p);
     return this.event('born', p);
@@ -99,6 +110,10 @@ export class Simulation {
       else survivors.push(p);
     }
     this.particles = survivors;
+
+    if (this.cfg.rippleEnabled) this.stepRipples(dt, events);
+    else if (this.ripples.length) this.clearRipples();
+
     return events;
   }
 
@@ -121,6 +136,63 @@ export class Simulation {
       if (f > frac) { frac = f; idx = i; }
     }
     this.particles.splice(idx, 1);
+  }
+
+  private stepRipples(dt: number, events: MusicalEvent[]) {
+    const { rippleEmitIntervalSec, ringLifespanSec, ringMaxRadius, maxRings } = this.cfg;
+
+    for (const p of this.particles) {
+      p.rippleTimer -= dt;
+      if (p.rippleTimer <= 0) {
+        p.rippleTimer = rippleEmitIntervalSec * randRange(this.rng, 0.7, 1.3);
+        if (this.ripples.length < maxRings) {
+          this.ripples.push({ id: this.nextRingId++, x: p.pos.x, y: p.pos.y, size: p.size, voice: p.voice, age: 0 });
+        }
+      }
+    }
+
+    const alive: RippleRing[] = [];
+    for (const ring of this.ripples) {
+      ring.age += dt;
+      if (ring.age >= ringLifespanSec) this.dropPairsFor(ring.id);
+      else alive.push(ring);
+    }
+    this.ripples = alive;
+
+    this.rippleOverlaps = [];
+    for (let i = 0; i < this.ripples.length; i++) {
+      for (let j = i + 1; j < this.ripples.length; j++) {
+        const a = this.ripples[i], b = this.ripples[j];
+        const ra = ringRadius(a, ringLifespanSec, ringMaxRadius);
+        const rb = ringRadius(b, ringLifespanSec, ringMaxRadius);
+        const hit = circleIntersection(a.x, a.y, ra, b.x, b.y, rb);
+        if (!hit) continue;
+        this.rippleOverlaps.push({ x: hit.p0.x, y: hit.p0.y, voiceA: a.voice, voiceB: b.voice });
+        this.rippleOverlaps.push({ x: hit.p1.x, y: hit.p1.y, voiceA: a.voice, voiceB: b.voice });
+        const key = a.id < b.id ? `${a.id}:${b.id}` : `${b.id}:${a.id}`;
+        if (!this.firedPairs.has(key)) {
+          this.firedPairs.add(key);
+          events.push({
+            type: 'ring-cross',
+            x: hit.mid.x, y: hit.mid.y,
+            size: (a.size + b.size) * 0.5, speed: 0,
+            voiceA: a.voice, voiceB: b.voice,
+          });
+        }
+      }
+    }
+  }
+
+  private dropPairsFor(id: number) {
+    for (const key of this.firedPairs) {
+      if (key.startsWith(`${id}:`) || key.endsWith(`:${id}`)) this.firedPairs.delete(key);
+    }
+  }
+
+  private clearRipples() {
+    this.ripples = [];
+    this.rippleOverlaps = [];
+    this.firedPairs.clear();
   }
 
   private event(type: LifeEvent['type'], p: Particle): LifeEvent {

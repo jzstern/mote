@@ -11,7 +11,7 @@ function fakeCanvas() {
   return { canvas: { width: 0, height: 0, getContext: () => ctx } as unknown as HTMLCanvasElement, ctx };
 }
 const p = (over: Partial<Particle> = {}): Particle => ({
-  id: 1, pos: { x: 10, y: 10 }, vel: { x: 0, y: 0 }, size: 30, age: 5, lifespan: 20, voice: 'aqua', bounceCooldown: 0, ...over,
+  id: 1, pos: { x: 10, y: 10 }, vel: { x: 0, y: 0 }, size: 30, age: 5, lifespan: 20, voice: 'aqua', bounceCooldown: 0, rippleTimer: 0, ...over,
 });
 
 describe('Renderer', () => {
