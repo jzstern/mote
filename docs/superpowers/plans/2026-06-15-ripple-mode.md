@@ -63,7 +63,8 @@ Make `MusicalEvent` a union so a crossing can carry two voices and no `particleI
 **Files:**
 - Modify: `src/engine/types.ts`
 - Modify: `src/engine/Simulation.ts` (the `event()` helper return type)
-- Modify: `src/engine/AudioEngine.ts` (`midiFor` param shape so both variants feed it)
+- Modify: `src/engine/AudioEngine.ts` (`midiFor` param shape, `allocatePad` param, `LifeEvent` import)
+- Modify: `src/engine/AudioEngine.test.ts` (retype the `ev()` factory)
 
 - [ ] **Step 1: Rewrite the event types in `src/engine/types.ts`**
 
@@ -104,9 +105,15 @@ private event(type: LifeEvent['type'], p: Particle): LifeEvent {
 
 Add `LifeEvent` to the `types` import: `import type { LifeEvent, MusicalEvent } from './types';`
 
-- [ ] **Step 3: Decouple `midiFor` in `src/engine/AudioEngine.ts`**
+- [ ] **Step 3: Decouple `midiFor` and fix `allocatePad` in `src/engine/AudioEngine.ts`**
 
-So both event variants can feed it, change its parameter to the minimal shape it actually reads:
+Add `LifeEvent` to the `types` import (RingCrossEvent is added later in Task 5, when it is first used — importing it now would trip `noUnusedLocals`):
+
+```ts
+import type { KnobValues, Mode, Mood, MusicalEvent, LifeEvent } from './types';
+```
+
+Change `midiFor`'s parameter to the minimal shape it reads, so both event variants feed it:
 
 ```ts
 private midiFor(e: { y: number; size: number; speed: number }) {
@@ -114,22 +121,42 @@ private midiFor(e: { y: number; size: number; speed: number }) {
 }
 ```
 
-(No other AudioEngine change yet — `allocatePad`/`releasePad` are still only called from the `born`/`death` cases, which narrow to `LifeEvent`, so `e.particleId` stays valid.)
+Change `allocatePad`'s parameter from `MusicalEvent` to `LifeEvent` — it reads `e.particleId`, which `RingCrossEvent` does not have, so the union would otherwise fail `tsc`:
 
-- [ ] **Step 4: Typecheck**
+```ts
+private allocatePad(e: LifeEvent) {
+```
+
+(`tryPluck` and `bloom` keep `MusicalEvent`; they only feed the narrowed `midiFor`.)
+
+- [ ] **Step 4: Retype the test event factory — `src/engine/AudioEngine.test.ts`**
+
+`Partial<MusicalEvent>` no longer spreads onto a `'born'` literal once the type is a union, so the existing `ev()` helper stops compiling. Change its import and signature to the life-event variant:
+
+```ts
+import type { LifeEvent } from './types';
+
+const ev = (over: Partial<LifeEvent> = {}): LifeEvent => ({
+  type: 'born', particleId: 1, x: 0, y: 0, size: 30, speed: 0, voice: 'peach', ...over,
+});
+```
+
+(The ring-cross tests added in Task 5 build their literals inline, so they are unaffected.)
+
+- [ ] **Step 5: Typecheck**
 
 Run: `pnpm exec tsc --noEmit`
 Expected: no errors.
 
-- [ ] **Step 5: Tests still green**
+- [ ] **Step 6: Tests still green**
 
 Run: `pnpm test`
 Expected: all pass (no behavior changed).
 
-- [ ] **Step 6: Commit**
+- [ ] **Step 7: Commit**
 
 ```bash
-git add src/engine/types.ts src/engine/Simulation.ts src/engine/AudioEngine.ts
+git add src/engine/types.ts src/engine/Simulation.ts src/engine/AudioEngine.ts src/engine/AudioEngine.test.ts
 git commit -m "feat(engine): ring-cross MusicalEvent union"
 ```
 
@@ -349,11 +376,9 @@ const cfg = (over: Partial<SimConfig> = {}): SimConfig => ({
 });
 ```
 
-Then add a `describe` block (uses `RippleRing` — import it):
+Add `import type { RippleRing } from './ripple';` at the top of the file with the existing imports. Then add a `describe` block:
 
 ```ts
-import type { RippleRing } from './ripple';
-
 describe('Simulation ripples', () => {
   const crossingRing = (over: Partial<RippleRing>): RippleRing =>
     ({ id: 1, x: 0, y: 0, size: 20, voice: 'peach', age: 0, ...over });
@@ -544,6 +569,12 @@ In the `vi.mock('tone', ...)` factory, give `Filter` a ramped `frequency` so the
   class Filter { frequency = ramp(); connect = vi.fn(); dispose = vi.fn(); }
 ```
 
+Also add a `Panner` class (the ripple bus pans per note) and include `Panner` in the factory's `return { ... }` list:
+
+```ts
+  class Panner { pan = ramp(); connect = vi.fn(); dispose = vi.fn(); }
+```
+
 Add tests inside the `describe('AudioEngine', ...)` block:
 
 ```ts
@@ -574,11 +605,13 @@ import { VOICE_TIMBRE } from './palette';
 Add fields:
 
 ```ts
+  private width = 1;
   private lastRippleAt = -1;
   private readonly rippleMinInterval = 0.08;
   private ripple!: Tone.PolySynth;
   private rippleBus!: Tone.Gain;
   private rippleTone!: Tone.Filter;
+  private panner!: Tone.Panner;
 ```
 
 In `init()`, after the pluck is created and connected, add the ripple chain (before `this.ready = true;`):
@@ -586,14 +619,22 @@ In `init()`, after the pluck is created and connected, add the ripple chain (bef
 ```ts
     this.rippleBus = new Tone.Gain(0.5);
     this.rippleTone = new Tone.Filter({ type: 'lowpass', frequency: 1400, Q: 0.8 });
+    this.panner = new Tone.Panner(0);
     this.ripple = new Tone.PolySynth(Tone.FMSynth, {
       harmonicity: 3, modulationIndex: 6,
       envelope: { attack: 0.008, decay: 1.4, sustain: 0, release: 1.8 },
       volume: -15,
     });
     this.ripple.connect(this.rippleTone);
-    this.rippleTone.connect(this.rippleBus);
+    this.rippleTone.connect(this.panner);
+    this.panner.connect(this.rippleBus);
     this.rippleBus.connect(this.chorus);
+```
+
+Add a `setWidth` setter next to the existing `setHeight` (so pan can map x → stereo):
+
+```ts
+  setWidth(w: number) { this.width = w; }
 ```
 
 In `handle()`'s `switch`, add a case:
@@ -602,7 +643,7 @@ In `handle()`'s `switch`, add a case:
         case 'ring-cross': this.tryRipple(e, now); break;
 ```
 
-Add the handler method:
+Add the handler method (pitch from the crossing's y, timbre from the blended brightness, pan from x):
 
 ```ts
   private tryRipple(e: RingCrossEvent, now: number) {
@@ -610,12 +651,13 @@ Add the handler method:
     this.lastRippleAt = now;
     const brightness = (VOICE_TIMBRE[e.voiceA] + VOICE_TIMBRE[e.voiceB]) * 0.5;
     this.rippleTone.frequency.rampTo(600 + brightness * 3200, 0.05);
+    this.panner.pan.rampTo(Math.max(-1, Math.min(1, (e.x / this.width) * 2 - 1)), 0.05);
     const time = this.transport.nextSubdivision('4n');
     this.ripple.triggerAttackRelease(this.freq(this.midiFor(e)), '4n', time);
   }
 ```
 
-In `dispose()`, add `this.rippleBus, this.rippleTone, this.ripple` to the array of nodes disposed.
+In `dispose()`, add `this.rippleBus, this.rippleTone, this.panner, this.ripple` to the array of nodes disposed.
 
 - [ ] **Step 4: Run tests — expect PASS** (`pnpm test`).
 
@@ -644,6 +686,12 @@ Add imports at the top:
 
 ```ts
 import type { RippleRing, RippleOverlap } from './ripple';
+```
+
+Add `stroke: vi.fn()` to the `ctx` object inside `fakeCanvas()` — the ripple-ring loop calls `ctx.stroke()`, which the existing mock does not define (the original test never exercised a stroke path):
+
+```ts
+    setTransform: vi.fn(), fillRect: vi.fn(), beginPath: vi.fn(), arc: vi.fn(), fill: vi.fn(), stroke: vi.fn(),
 ```
 
 Add a test:
@@ -788,9 +836,10 @@ Compute the max radius and extend the `SimConfig` literal:
     };
 ```
 
-After `this.renderer = new Renderer(...)` and resize, add:
+After `this.renderer = new Renderer(...)` and resize, and next to the existing `this.audio.setHeight(this.height);`, add:
 
 ```ts
+    this.audio.setWidth(this.width);
     this.renderer.setRippleParams(3, ringMaxRadius);
 ```
 
@@ -820,6 +869,7 @@ In `resize()`, after computing width/height, recompute and propagate the max rad
     const ringMaxRadius = 0.35 * Math.min(this.width, this.height);
     this.sim.setConfig({ width: this.width, height: this.height, ringMaxRadius });
     this.audio.setHeight(this.height);
+    this.audio.setWidth(this.width);
     this.renderer.setRippleParams(3, ringMaxRadius);
     this.renderer.resize(this.width, this.height, window.devicePixelRatio || 1);
 ```
@@ -914,7 +964,7 @@ git commit -m "chore: tune ripple feel and performance"
 ```bash
 pnpm exec tsc --noEmit && pnpm test && pnpm build
 ```
-Expected: no type errors; all suites pass; `dist/` builds clean.
+Expected: no type errors; all suites pass; `dist/` builds clean. (`pnpm build` emits two **pre-existing** warnings unrelated to Ripple — a Tone static-vs-dynamic-import notice and a >500 kB chunk-size advisory. They do not fail the build; do not chase them.)
 
 - [ ] **Step 2: Spec cross-check** — re-read the spec (§3 behavior, §9 testing) and confirm each acceptance point is met; note any gaps.
 

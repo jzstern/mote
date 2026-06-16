@@ -225,8 +225,9 @@ Ripple visuals are a separate code path from the existing decorative bloom rings
 `MoteApp` already runs the fixed-timestep loop. Per substep it passes
 `sim.step(dt)`'s events to `AudioEngine.handle()`; it additionally scans those
 events for `ring-cross` and calls `renderer.addRippleFlash(x, y, voiceA, voiceB)`.
-Each frame it draws with the current ring + overlap state:
-`renderer.draw(particles, sim.ripples, sim.rippleOverlaps, width, height, tint)`.
+Each frame it draws with the current ring + overlap state. The ripple arguments
+are **appended last** so existing four-argument callers stay valid:
+`renderer.draw(particles, width, height, tint, sim.ripples, sim.rippleOverlaps)`.
 The overlaps reflect the last substep (<1/120 s stale) — visually exact.
 
 ## 8. UI and persistence
