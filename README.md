@@ -37,6 +37,25 @@ the [shader/ascii/terminal spec](docs/superpowers/specs/2026-06-16-mote-shader-a
 Interface tokens live in `src/themes/`. Favicons, OG images, and the per-interface
 HTML entries are generated from those tokens with `pnpm gen:assets`.
 
+## Lab: mechanism variants
+
+Where interfaces reskin the same particle simulation, the lab (`/lab.html`)
+prototypes five different *living systems* — each with its own mechanism, sound
+design, typography, favicon, and OG image, sharing only the scale-locked
+instrument kit (`src/variants/audio.ts`) and page shell (`src/variants/shell.ts`).
+
+| Variant | Mechanism | Sound | Feel |
+| --- | --- | --- | --- |
+| `pulse` | Brian's Brain cellular automaton | glassy FM plucks, 16th-quantized | neon synaptic storm |
+| `ember` | pulse-coupled oscillators (firefly sync) | kalimba flashes, emergent rhythm | warm summer night |
+| `terrace` | Abelian sandpile (self-organized criticality) | koto runs sized to avalanches | zen sand garden, light |
+| `loom` | elementary 1D CA (Rule 90 → 150 → 110 → …) | music-box bells on a steady 8th-note weave | indigo textile |
+| `hypha` | Physarum slime-mold agents | slow drone chords played by trail density | bioluminescent abyss |
+
+Variant logic lives in `src/variants/<id>/` (pure `sim.ts` + `app.ts`); brand
+tokens in `src/variants/meta.ts`. Favicons, OG images, and HTML entries are
+generated with `pnpm gen:variant-assets`.
+
 ## Stack
 
 Vite + React + TypeScript + Tailwind, Tone.js for audio, HTML Canvas 2D (and

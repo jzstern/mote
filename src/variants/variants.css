@@ -1,0 +1,131 @@
+html,
+body,
+#root {
+  height: 100%;
+  margin: 0;
+}
+body {
+  background: var(--mote-bg, #0c0a12);
+  color: var(--mote-text, #efe9fb);
+  font-family: var(--mote-font, system-ui, sans-serif);
+  overflow: hidden;
+}
+
+button:not(:disabled),
+[role='button']:not([aria-disabled='true']),
+label[for],
+summary {
+  cursor: pointer;
+}
+
+.vshell {
+  position: relative;
+  height: 100%;
+}
+.vshell-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+  touch-action: none;
+}
+
+.vshell-top {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  padding: 20px 24px;
+  pointer-events: none;
+}
+.vshell-wordmark {
+  pointer-events: auto;
+  color: var(--mote-text);
+  text-decoration: none;
+  font-size: 22px;
+  font-weight: var(--mote-wordmark-weight, 500);
+  letter-spacing: var(--mote-wordmark-spacing, 0.02em);
+}
+.vshell-sep {
+  color: var(--mote-accent);
+  margin: 0 0.18em;
+}
+.vshell-nav {
+  pointer-events: auto;
+  display: flex;
+  gap: 14px;
+  font-size: 13px;
+}
+.vshell-navlink {
+  color: var(--mote-text-dim);
+  text-decoration: none;
+  transition: color 180ms ease-out;
+}
+a.vshell-navlink:hover {
+  color: var(--mote-text);
+}
+.vshell-navlink.is-current {
+  color: var(--mote-accent);
+}
+
+.vshell-hint {
+  position: absolute;
+  bottom: 64px;
+  left: 0;
+  right: 0;
+  text-align: center;
+  font-size: 14px;
+  color: var(--mote-text-dim);
+  pointer-events: none;
+  transition: opacity 600ms ease-out;
+}
+.vshell-hint.is-hidden {
+  opacity: 0;
+}
+
+.vshell-bottom {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 24px;
+  pointer-events: none;
+}
+.vshell-sound {
+  font-size: 12px;
+  color: var(--mote-text-faint, var(--mote-text-dim));
+  border: 1px solid var(--mote-border);
+  border-radius: 9999px;
+  padding: 5px 12px;
+  transition: opacity 400ms ease-out;
+}
+.vshell-sound.is-hidden {
+  opacity: 0;
+}
+.vshell-volume {
+  pointer-events: auto;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  color: var(--mote-text-dim);
+}
+.vshell-volume input {
+  width: 110px;
+  accent-color: var(--mote-accent);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

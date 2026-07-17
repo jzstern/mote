@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicons/lab.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="color-scheme" content="dark" />
+    <meta name="theme-color" content="#0b0b12" />
+    <meta name="description" content="Five experimental mote variations, each a different living system with its own sound and skin." />
+    <meta property="og:title" content="mote · lab" />
+    <meta property="og:description" content="Five experimental mote variations, each a different living system with its own sound and skin." />
+    <title>mote · lab</title>
+    <style>
+      :root { color-scheme: dark; }
+      * { box-sizing: border-box; }
+      html, body { margin: 0; min-height: 100%; }
+      body {
+        background: #0b0b12;
+        color: #e8e6f0;
+        font: 16px/1.5 system-ui, sans-serif;
+        display: grid;
+        place-items: center;
+        padding: 48px 24px;
+      }
+      main { width: 100%; max-width: 860px; }
+      h1 { font-size: 28px; font-weight: 600; letter-spacing: 0.02em; margin: 0; }
+      h1 span { color: #8a87a0; font-weight: 400; }
+      p.lede { color: #8a87a0; margin: 8px 0 32px; }
+      .grid { display: grid; gap: 14px; }
+      a.card {
+        display: flex;
+        align-items: baseline;
+        gap: 16px;
+        padding: 20px 22px;
+        border-radius: 14px;
+        border: 1px solid color-mix(in srgb, var(--accent) 25%, transparent);
+        background: var(--bg);
+        color: var(--fg);
+        text-decoration: none;
+        transition: transform 180ms cubic-bezier(0.2, 0.8, 0.2, 1), border-color 180ms ease-out;
+      }
+      a.card:hover { transform: translateY(-2px); border-color: color-mix(in srgb, var(--accent) 60%, transparent); }
+      a.card .name { font-size: 20px; font-weight: 600; min-width: 96px; }
+      a.card .name::before { content: '● '; color: var(--accent); font-size: 12px; vertical-align: 2px; }
+      a.card .desc { color: color-mix(in srgb, var(--fg) 62%, var(--bg)); font-size: 14px; }
+      footer { margin-top: 32px; font-size: 14px; }
+      footer a { color: #8a87a0; }
+      @media (prefers-reduced-motion: reduce) {
+        a.card { transition: none; }
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <h1>mote <span>· lab</span></h1>
+      <p class="lede">five living systems, five skins, one rule: no wrong notes.</p>
+      <div class="grid">
+        <a class="card" href="/pulse.html" style="--bg:#050510; --fg:#d9f6ff; --accent:#4df3ff">
+          <span class="name">pulse</span>
+          <span class="desc">a synaptic storm that never settles — Brian’s Brain cellular automaton</span>
+        </a>
+        <a class="card" href="/ember.html" style="--bg:#0a0f0a; --fg:#f5e6c8; --accent:#ffc66b">
+          <span class="name">ember</span>
+          <span class="desc">fireflies drifting into synchrony — pulse-coupled oscillators in a dark meadow</span>
+        </a>
+        <a class="card" href="/terrace.html" style="--bg:#f4eee2; --fg:#3b3a36; --accent:#c4643b">
+          <span class="name">terrace</span>
+          <span class="desc">sand grains topple into mandalas — the Abelian sandpile at the edge of criticality</span>
+        </a>
+        <a class="card" href="/loom.html" style="--bg:#1b2340; --fg:#ede4d0; --accent:#e2a93b">
+          <span class="name">loom</span>
+          <span class="desc">an elementary cellular automaton woven row by row — the cloth plays itself</span>
+        </a>
+        <a class="card" href="/hypha.html" style="--bg:#04070c; --fg:#d2f5ea; --accent:#3fe8c8">
+          <span class="name">hypha</span>
+          <span class="desc">a slime-mold network finding its own paths — physarum agents in bioluminescent dark</span>
+        </a>
+      </div>
+      <footer><a href="/">← back to mote</a></footer>
+    </main>
+  </body>
+</html>

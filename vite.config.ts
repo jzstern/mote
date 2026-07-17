@@ -20,6 +20,12 @@ export default defineConfig({
         liquid: entry('liquid.html'),
         ascii: entry('ascii.html'),
         terminal: entry('terminal.html'),
+        lab: entry('lab.html'),
+        pulse: entry('pulse.html'),
+        ember: entry('ember.html'),
+        terrace: entry('terrace.html'),
+        loom: entry('loom.html'),
+        hypha: entry('hypha.html'),
       },
       output: {
         manualChunks(id) {

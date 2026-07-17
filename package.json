@@ -10,7 +10,8 @@
     "preview": "vite preview",
     "gen:assets": "pnpm dlx tsx scripts/gen-assets.ts",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "gen:variant-assets": "pnpm dlx tsx scripts/gen-variant-assets.ts"
   },
   "dependencies": {
     "react": "^19.2.6",
