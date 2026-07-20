@@ -1,6 +1,7 @@
 import type * as Tone from 'tone';
 import type { KnobValues, Mode, Mood, MusicalEvent } from './types';
 import { pitchFor } from './scale';
+import { Recorder, type CaptureContext, type RecorderOptions } from './Recorder';
 
 interface PadVoice { synth: Tone.Synth; particleId: number | null; startedAt: number; }
 
@@ -26,6 +27,7 @@ export class AudioEngine {
   private transport!: ReturnType<typeof Tone.getTransport>;
   private padVoices: PadVoice[] = [];
   private tone!: typeof import('tone');
+  private recorder: Recorder | null = null;
 
   async init() {
     if (this.ready) return;
@@ -138,7 +140,34 @@ export class AudioEngine {
     [0, 4, 7, 12].forEach((iv, i) => this.pluck.triggerAttackRelease(this.freq(base + iv), '4n', now + i * 0.06));
   }
 
+  get canRecord() { return this.ready; }
+  get isRecording() { return this.recorder?.isRecording ?? false; }
+  get recordingSeconds() { return this.recorder?.seconds ?? 0; }
+
+  async startRecording(opts: RecorderOptions) {
+    if (!this.ready) throw new Error('audio not ready');
+    if (this.recorder?.isRecording) return;
+    const recorder = new Recorder(this.tone.getContext() as unknown as CaptureContext, this.master);
+    this.recorder = recorder;
+    try {
+      await recorder.start(opts);
+    } catch (err) {
+      recorder.dispose();
+      if (this.recorder === recorder) this.recorder = null;
+      throw err;
+    }
+  }
+
+  stopRecording(): Blob | null {
+    const blob = this.recorder?.stop() ?? null;
+    this.recorder?.dispose();
+    this.recorder = null;
+    return blob;
+  }
+
   dispose() {
+    this.recorder?.dispose();
+    this.recorder = null;
     this.transport?.stop();
     [this.padBus, this.master, this.limiter, this.reverb, this.delay, this.chorus, this.filter, this.lfo, this.pluck]
       .forEach(n => n?.dispose?.());
