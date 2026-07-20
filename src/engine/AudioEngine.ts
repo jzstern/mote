@@ -158,10 +158,12 @@ export class AudioEngine {
     }
   }
 
-  stopRecording(): Blob | null {
-    const blob = this.recorder?.stop() ?? null;
-    this.recorder?.dispose();
-    this.recorder = null;
+  async stopRecording(): Promise<Blob | null> {
+    const recorder = this.recorder;
+    if (!recorder) return null;
+    const blob = await recorder.stop();
+    recorder.dispose();
+    if (this.recorder === recorder) this.recorder = null;
     return blob;
   }
 

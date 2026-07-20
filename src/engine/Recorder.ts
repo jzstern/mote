@@ -74,6 +74,7 @@ export class Recorder {
   private maxFrames = 0;
   private recording = false;
   private onCap: (() => void) | null = null;
+  private stopping: Promise<Blob | null> | null = null;
 
   constructor(
     private readonly context: CaptureContext,
@@ -107,8 +108,26 @@ export class Recorder {
   }
 
   /** Stop capturing and encode everything collected into a WAV blob. */
-  stop(): Blob | null {
-    this.stopCapture();
+  stop(): Promise<Blob | null> {
+    if (!this.stopping) this.stopping = this.drainAndEncode();
+    return this.stopping;
+  }
+
+  private async drainAndEncode(): Promise<Blob | null> {
+    const node = this.node;
+    if (node && this.recording) {
+      // Stop producing new blocks, then let the message loop deliver blocks the
+      // worklet already posted but that are still queued on the port, so the
+      // recording's tail isn't truncated.
+      this.onCap = null;
+      this.detach(node);
+      await new Promise((resolve) => setTimeout(resolve, 0));
+      this.recording = false;
+      node.port.onmessage = null;
+      this.node = null;
+    } else {
+      this.stopCapture();
+    }
     if (this.chunks.length === 0) return null;
     const total = this.chunks.reduce((n, c) => n + c.length, 0);
     const pcm = new Int16Array(total);
@@ -145,13 +164,17 @@ export class Recorder {
     this.recording = false;
     if (!this.node) return;
     this.node.port.onmessage = null;
+    this.detach(this.node);
+  }
+
+  private detach(node: AudioWorkletNode): void {
     try {
-      this.source.disconnect(this.node);
+      this.source.disconnect(node);
     } catch {
       /* already disconnected */
     }
     try {
-      this.node.disconnect();
+      node.disconnect();
     } catch {
       /* already disconnected */
     }

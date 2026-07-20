@@ -47,9 +47,9 @@ export function useMoteApp(canvasRef: React.RefObject<HTMLCanvasElement | null>)
     return () => clearInterval(id);
   }, [recording]);
 
-  const finishRecording = useCallback(() => {
+  const finishRecording = useCallback(async () => {
     const app = appRef.current;
-    const blob = app?.stopRecording() ?? null;
+    const blob = app ? await app.stopRecording() : null;
     setRecording(false);
     setRecordingSeconds(0);
     if (blob) downloadBlob(blob, recordingFilename(new Date()));
@@ -58,7 +58,7 @@ export function useMoteApp(canvasRef: React.RefObject<HTMLCanvasElement | null>)
   const toggleRecording = useCallback(async () => {
     const app = appRef.current;
     if (!app || !unlocked || startingRecording.current) return;
-    if (app.isRecording) { finishRecording(); return; }
+    if (app.isRecording) { await finishRecording(); return; }
     startingRecording.current = true;
     try {
       await app.startRecording({ maxSeconds: RECORD_MAX_SECONDS, onAutoStop: finishRecording });
