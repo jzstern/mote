@@ -3,6 +3,7 @@ import { AudioEngine } from './AudioEngine';
 import { Renderer } from './Renderer';
 import { mulberry32, randRange, type Rng } from './rng';
 import type { KnobValues, Mode, Mood } from './types';
+import type { RecorderOptions } from './Recorder';
 
 export interface MoteAppOptions { seed?: number; reducedMotion?: boolean; }
 
@@ -113,6 +114,12 @@ export class MoteApp {
   setSpores(on: boolean) { this.sim.setConfig({ sporesEnabled: on }); }
   setVolume(v: number) { this.audio.setVolume(v); }
   clear() { this.audio.handle(this.sim.clear()); }
+
+  get canRecord() { return this.audio.canRecord; }
+  get isRecording() { return this.audio.isRecording; }
+  get recordingSeconds() { return this.audio.recordingSeconds; }
+  startRecording(opts: RecorderOptions) { return this.audio.startRecording(opts); }
+  stopRecording() { return this.audio.stopRecording(); }
 
   resize() {
     this.width = this.canvas.clientWidth;

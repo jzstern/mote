@@ -6,7 +6,7 @@ import type { Settings } from './ui/storage';
 
 export default function App() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const { app, settings, setSettings, unlocked, unlock } = useMoteApp(canvasRef);
+  const { app, settings, setSettings, unlocked, unlock, recording, recordingSeconds, recordMaxSeconds, toggleRecording } = useMoteApp(canvasRef);
   const [hint, setHint] = useState(true);
   const drag = useRef<{ x: number; y: number; t: number } | null>(null);
   const typed = useRef('');
@@ -43,7 +43,9 @@ export default function App() {
         </div>
       )}
       <div className="pointer-events-none absolute inset-x-0 bottom-0 flex justify-center">
-        <ControlStrip settings={settings} onChange={patch} onClear={() => app.current?.clear()} />
+        <ControlStrip settings={settings} onChange={patch} onClear={() => app.current?.clear()}
+          recording={recording} recordingSeconds={recordingSeconds} recordMaxSeconds={recordMaxSeconds}
+          canRecord={unlocked} onToggleRecord={() => void toggleRecording()} />
       </div>
     </div>
   );
