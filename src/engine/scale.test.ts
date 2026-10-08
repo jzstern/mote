@@ -36,4 +36,22 @@ describe('pitchFor', () => {
   it('different moods can produce different pitch sets', () => {
     expect(scaleNotes('warm')).not.toEqual(scaleNotes('dusk'));
   });
+  it('places the pad register an octave below the pluck register at the same position', () => {
+    for (const mood of MOODS) {
+      for (let y = 0; y <= H; y += 25) {
+        const input = { y, height: H, size: 40, speed: 0 };
+        expect(pitchFor(mood, input, 'pad')).toBe(pitchFor(mood, input, 'pluck') - 12);
+      }
+    }
+  });
+  it('keeps the pad register in-scale and reaches below the pluck root for low end', () => {
+    const allowed = new Set(scaleNotes('warm'));
+    let lowest = Infinity;
+    for (let y = 0; y <= H; y += 10) {
+      const midi = pitchFor('warm', { y, height: H, size: 40, speed: 0 }, 'pad');
+      expect(allowed.has(pc(midi))).toBe(true);
+      lowest = Math.min(lowest, midi);
+    }
+    expect(lowest).toBeLessThan(ROOT_MIDI);
+  });
 });

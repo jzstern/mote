@@ -1,7 +1,12 @@
 import type { Mood } from './types';
 
-export const ROOT_MIDI = 57;   // A3 — warm low root; tune by ear later
-export const OCTAVE_SPAN = 3;  // octaves mapped across the vertical axis
+export const ROOT_MIDI = 57;   // A3 — root of the melodic (pluck) register
+export const OCTAVE_SPAN = 3;  // octaves each voice spans across the vertical axis
+
+export type Register = 'pad' | 'pluck';
+
+// Pads drop below the melodic voice to anchor the low end; plucks stay bright on top.
+const REGISTER_SHIFT: Record<Register, number> = { pad: -12, pluck: 0 };
 
 const SCALES: Record<Mood, number[]> = {
   warm:  [0, 2, 4, 7, 9],          // major pentatonic
@@ -16,7 +21,7 @@ export function scaleNotes(mood: Mood): number[] { return SCALES[mood]; }
 
 const clamp01 = (v: number) => (v < 0 ? 0 : v > 1 ? 1 : v);
 
-export function pitchFor(mood: Mood, input: PitchInput): number {
+export function pitchFor(mood: Mood, input: PitchInput, register: Register = 'pluck'): number {
   const offsets = SCALES[mood];
   const degrees = offsets.length * OCTAVE_SPAN;
   const vertical = clamp01(1 - input.y / input.height);          // top => 1 => high
@@ -25,5 +30,5 @@ export function pitchFor(mood: Mood, input: PitchInput): number {
   const degreeIndex = Math.round(pos * (degrees - 1));
   const octave = Math.floor(degreeIndex / offsets.length);
   const within = degreeIndex % offsets.length;
-  return ROOT_MIDI + octave * 12 + offsets[within];
+  return ROOT_MIDI + octave * 12 + offsets[within] + REGISTER_SHIFT[register];
 }

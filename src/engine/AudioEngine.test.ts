@@ -3,6 +3,7 @@ import { describe, it, expect, vi } from 'vitest';
 vi.mock('tone', () => {
   const ramp = () => ({ rampTo: vi.fn(), value: 0 });
   class Synth { detune = ramp(); connect = vi.fn(); triggerAttack = vi.fn(); triggerRelease = vi.fn(); dispose = vi.fn(); }
+  class Oscillator { frequency = ramp(); connect = vi.fn(); start = vi.fn(function (this: unknown) { return this; }); dispose = vi.fn(); }
   class PolySynth { connect = vi.fn(); triggerAttackRelease = vi.fn(); dispose = vi.fn(); }
   class Reverb { wet = ramp(); connect = vi.fn(); generate = vi.fn(async () => {}); dispose = vi.fn(); }
   class FeedbackDelay { wet = ramp(); feedback = ramp(); connect = vi.fn(); dispose = vi.fn(); }
@@ -12,7 +13,7 @@ vi.mock('tone', () => {
   class Gain { gain = ramp(); connect = vi.fn(); toDestination = vi.fn(); dispose = vi.fn(); }
   class Limiter { connect = vi.fn(); dispose = vi.fn(); }
   return {
-    Synth, PolySynth, Reverb, FeedbackDelay, Chorus, Filter, LFO, Gain, Limiter, FMSynth: class {},
+    Synth, Oscillator, PolySynth, Reverb, FeedbackDelay, Chorus, Filter, LFO, Gain, Limiter, FMSynth: class {},
     start: vi.fn(async () => {}),
     now: () => 0,
     getTransport: () => ({ bpm: { value: 0, rampTo: vi.fn() }, start: vi.fn(), stop: vi.fn(), nextSubdivision: () => 0 }),

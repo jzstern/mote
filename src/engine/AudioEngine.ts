@@ -1,6 +1,6 @@
 import type * as Tone from 'tone';
 import type { KnobValues, Mode, Mood, MusicalEvent } from './types';
-import { pitchFor } from './scale';
+import { pitchFor, type Register } from './scale';
 
 interface PadVoice { synth: Tone.Synth; particleId: number | null; startedAt: number; }
 
@@ -14,15 +14,26 @@ export class AudioEngine {
   private readonly pluckMinInterval = 0.06;
   private readonly PAD_VOICES = 10;
 
+  private transpose = 0;
+  private driftTimer: ReturnType<typeof setInterval> | null = null;
+  private readonly SUB_ROOT_MIDI = 33;                    // A1 — pedal drone below the pads
+  private readonly TONAL_CENTERS = [0, -5, -7, -2, 3];    // semitone shifts of the whole harmony
+  private readonly driftIntervalMs = 35000;
+
   private padBus!: Tone.Gain;
   private master!: Tone.Gain;
   private limiter!: Tone.Limiter;
+  private lowCut!: Tone.Filter;
+  private lowShelf!: Tone.Filter;
   private reverb!: Tone.Reverb;
   private delay!: Tone.FeedbackDelay;
   private chorus!: Tone.Chorus;
   private filter!: Tone.Filter;
   private lfo!: Tone.LFO;
   private pluck!: Tone.PolySynth;
+  private sub!: Tone.Oscillator;
+  private subGain!: Tone.Gain;
+  private subLfo!: Tone.LFO;
   private transport!: ReturnType<typeof Tone.getTransport>;
   private padVoices: PadVoice[] = [];
   private tone!: typeof import('tone');
@@ -33,6 +44,8 @@ export class AudioEngine {
     await this.tone.start();
     this.master = new this.tone.Gain(0.9);
     this.limiter = new this.tone.Limiter(-1);
+    this.lowCut = new this.tone.Filter({ type: 'highpass', frequency: 30, Q: 0.5 });  // below the drone's lowest drift centre (D1)
+    this.lowShelf = new this.tone.Filter({ type: 'lowshelf', frequency: 110, gain: 2.5 });
     this.reverb = new this.tone.Reverb({ decay: 9, preDelay: 0.03, wet: 0.5 });
     await this.reverb.generate();
     this.delay = new this.tone.FeedbackDelay({ delayTime: 0.38, feedback: 0.32, wet: 0.18 });
@@ -48,12 +61,21 @@ export class AudioEngine {
       volume: -11,
     });
 
+    this.sub = new this.tone.Oscillator({ type: 'sine', frequency: this.freq(this.SUB_ROOT_MIDI), volume: -9 }).start();
+    this.subGain = new this.tone.Gain(0);
+    this.subLfo = new this.tone.LFO({ frequency: 0.025, min: 0, max: 0.35 }).start();
+    this.subLfo.connect(this.subGain.gain);
+    this.sub.connect(this.subGain);
+
     this.padBus.connect(this.chorus);
     this.pluck.connect(this.chorus);
     this.chorus.connect(this.filter);
     this.filter.connect(this.delay);
     this.delay.connect(this.reverb);
-    this.reverb.connect(this.limiter);
+    this.reverb.connect(this.lowCut);
+    this.subGain.connect(this.lowCut);          // drone skips the big reverb to stay clean
+    this.lowCut.connect(this.lowShelf);
+    this.lowShelf.connect(this.limiter);
     this.limiter.connect(this.master);
     this.master.toDestination();
 
@@ -72,6 +94,14 @@ export class AudioEngine {
       this.padVoices.push({ synth, particleId: null, startedAt: 0 });
     }
     this.ready = true;
+    this.driftTimer = setInterval(() => this.stepDrift(), this.driftIntervalMs);
+  }
+
+  private stepDrift() {
+    if (!this.ready) return;
+    const options = this.TONAL_CENTERS.filter(c => c !== this.transpose);
+    this.transpose = options[Math.floor(Math.random() * options.length)];
+    this.sub.frequency.rampTo(this.freq(this.SUB_ROOT_MIDI + this.transpose), 6);
   }
 
   setHeight(h: number) { this.height = h; }
@@ -112,14 +142,16 @@ export class AudioEngine {
     }
   }
 
-  private midiFor(e: MusicalEvent) { return pitchFor(this.mood, { y: e.y, height: this.height, size: e.size, speed: e.speed }); }
+  private midiFor(e: MusicalEvent, register: Register = 'pluck') {
+    return pitchFor(this.mood, { y: e.y, height: this.height, size: e.size, speed: e.speed }, register) + this.transpose;
+  }
   private freq(midi: number) { return this.tone.Frequency(midi, 'midi').toFrequency(); }
 
   private allocatePad(e: MusicalEvent) {
     let v = this.padVoices.find(v => v.particleId === null);
     if (!v) { v = this.padVoices.reduce((a, b) => (a.startedAt <= b.startedAt ? a : b)); v.synth.triggerRelease(); }
     v.particleId = e.particleId; v.startedAt = this.tone.now();
-    v.synth.triggerAttack(this.freq(this.midiFor(e)));
+    v.synth.triggerAttack(this.freq(this.midiFor(e, 'pad')));
   }
   private releasePad(pid: number) {
     const v = this.padVoices.find(v => v.particleId === pid);
@@ -140,7 +172,9 @@ export class AudioEngine {
 
   dispose() {
     this.transport?.stop();
-    [this.padBus, this.master, this.limiter, this.reverb, this.delay, this.chorus, this.filter, this.lfo, this.pluck]
+    if (this.driftTimer) { clearInterval(this.driftTimer); this.driftTimer = null; }
+    [this.padBus, this.master, this.limiter, this.lowCut, this.lowShelf, this.reverb, this.delay,
+     this.chorus, this.filter, this.lfo, this.pluck, this.sub, this.subGain, this.subLfo]
       .forEach(n => n?.dispose?.());
     this.padVoices.forEach(v => v.synth.dispose());
     this.ready = false;
